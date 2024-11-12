@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>Main Page - Campus Reservation</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <h1>Campus Reservation</h1>
+    </header>
+
+    <section class="main-page">
+        <div class="content">
+            <div class="sidebar">
+                <h2>공간 예약</h2>
+                <button onclick="location.href='space_reservation.html'" class="btn-primary">공간 예약하기</button>
+                <button onclick="location.href='seat_reservation.html'" class="btn-primary">좌석 예약하기</button>
+            </div>
+            <div class="map-container">
+                <h2>캠퍼스 맵</h2>
+                <div class="campus-buttons">
+                    <button class="campus-btn" onclick="switchCampus('seoul')">서울캠퍼스(자연)</button>
+                    <button class="campus-btn active" onclick="switchCampus('sejong')">세종캠퍼스</button>
+                    <button class="campus-btn" onclick="switchCampus('shared')">세종공동캠퍼스</button>
+                </div>
+                <div id="map">
+                    <svg id="sejong-map" viewBox="0 0 1200 700" class="map-image">
+                        <rect class="building" x="80" y="300" width="220" height="160" onclick="showBuilding('과학기술1관')" />
+                        <text x="190" y="390" class="building-label">과학기술1관</text>
+                        <rect class="building" x="100" y="150" width="220" height="100" onclick="showBuilding('과학기술2관')" />
+                        <text x="210" y="210" class="building-label">과학기술2관</text>
+                        <rect class="building" x="300" y="40" width="350" height="80" onclick="showBuilding('공공정책관')" />
+                        <text x="475" y="90" class="building-label">공공정책관</text>
+                        <rect class="building" x="700" y="40" width="200" height="150" onclick="showBuilding('석원경상관')" />
+                        <text x="800" y="125" class="building-label">석원경상관</text>
+                        <rect class="building" x="950" y="50" width="170" height="140" onclick="showBuilding('문화스포츠관')" />
+                        <text x="1035" y="130" class="building-label">문화스포츠관</text>
+                        <rect class="building" x="650" y="300" width="120" height="140" onclick="showBuilding('학술정보관')" />
+                        <text x="710" y="380" class="building-label">학술정보관</text>
+                        <rect class="building" x="850" y="350" width="180" height="90" onclick="showBuilding('학생회관')" />
+                        <text x="940" y="405" class="building-label">학생회관</text>
+                        <rect class="building" x="650" y="550" width="210" height="120" onclick="showBuilding('농심국제관')" />
+                        <text x="755" y="620" class="building-label">농심국제관</text>
+                        <rect class="building" x="350" y="550" width="200" height="80" onclick="showBuilding('산학협력관')" />
+                        <text x="450" y="600" class="building-label">산학협력관</text>
+                        <rect class="building" x="80" y="550" width="230" height="100" onclick="showBuilding('ICT가속기관')" />
+                        <text x="195" y="610" class="building-label">ICT가속기관</text>
+                    </svg>
+                    <svg id="seoul-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
+                        <rect class="building" x="500" y="50" width="250" height="120" onclick="showBuilding('하나과학관')" />
+                        <rect class="building" x="450" y="190" width="300" height="80" onclick="showBuilding('아산과학관')" />
+                        <rect class="building" x="800" y="350" width="100" height="50" onclick="showBuilding('하나스퀘어')" />
+                        <rect class="building" x="500" y="450" width="250" height="100" onclick="showBuilding('과학도서관')" />
+                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding('생명과학관')" />
+                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding('우정정보관')" />
+                    </svg>
+                    <svg id="shared-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
+                        <rect class="building" x="700" y="100" width="120" height="310" onclick="showBuilding('세종공동실험실습관')" />
+                        <rect class="building" x="200" y="500" width="200" height="100" onclick="showBuilding('행정전문대학원관')" />
+                    </svg>
+                </div>
+                <p>지도에서 건물을 선택하여 예약 가능 여부를 확인하세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
+    </footer>
+
+    <script>
+    function showBuilding(buildingName) {
+        alert(`${buildingName} 건물이 선택되었습니다. 예약 가능한 공간을 확인해보세요.`);
+    }
+
+    function switchCampus(campus) {
+        // 모든 맵 숨기기
+        document.getElementById('sejong-map').style.display = 'none';
+        document.getElementById('seoul-map').style.display = 'none';
+        document.getElementById('shared-map').style.display = 'none';
+        
+        // 선택된 맵 보이기
+        document.getElementById(`${campus}-map`).style.display = 'block';
+        
+        // 버튼 활성화 상태 변경
+        document.querySelectorAll('.campus-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Reservation - Welcome</title>
+    <style>
+        @import url("index.css");
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Campus Reservation</h1>
+    </header>
+
+    <section class="section1">
+        <div class="video-background">
+            <iframe src="https://www.youtube.com/embed/LIP-r0qCmeU?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0"
+                    frameborder="0" allow="autoplay; fullscreen"></iframe>
+        </div>
+
+        <div class="content" id="section1">
+            <h2>환영합니다!</h2>
+            <p>캠퍼스 공간 예약 시스템에 오신 것을 환영합니다. 로그인을 통해 편리하게 공간을 예약해보세요.</p>
+            <button onclick="location.href='main.html'" class="btn-primary">로그인 및 시작하기</button>
+        </div>
+    </section>
+
+    <section class="section2">
+        <div class="content slide-left">
+            <h2>우리의 미션</h2>
+            <p>캠퍼스 내에서 공간과 좌석을 손쉽게 예약할 수 있는 환경을 제공합니다.</p>
+        </div>
+    </section>
+
+    <section class="section3">
+        <div class="content slide-right">
+            <h2>배고파</h2>
+            <p>밥사주.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
+    </footer>
+
+    <script>
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -10% 0px'
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const contents = document.querySelectorAll('.content');
+        contents.forEach(content => observer.observe(content));
+    </script>
+
+</body>
+</html>
+
