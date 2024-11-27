@@ -53,7 +53,7 @@ header h1 {
 }
 
 .map-container {
-    flex: 2;
+    flex: 2.3;
     padding: 20px;
 }
 
@@ -131,3 +131,29 @@ header h1 {
 .campus-btn.active {
     background-color: #862633;
 } 
+/*
+.map-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+}
+.map-image {
+    width: 100%;
+    height: auto;
+}
+.building {
+    fill: rgba(255, 255, 255, 0.7);
+    stroke: #000;
+    stroke-width: 1;
+    cursor: pointer;
+}
+.building:hover {
+    fill: #ffcc00;
+}
+.building-label {
+    font-size: 14px;
+    text-anchor: middle;
+    fill: #333;
+}
+

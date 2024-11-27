@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +7,46 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section>
-        <h2>My Reservations</h2>
-        <ul id="reservationList">
-            <!-- 예약 내역이 동적으로 추가될 영역 -->
-        </ul>
-        <button onclick="location.href='main.html'">Back</button>
-    </section>
+    <header>
+        <h1>My Reservation</h1>
+    </header>
+
+    <div class="reservation-container">
+        <div class="content">
+            <div class = "sidebar">
+                
+                    <h2>나의 프로필</h2>
+                <!-- 프로필 섹션 시작 -->
+                    <section id="profileSection">
+                        <!--DB에서 받아올 정보들-->
+                        <img id="profileImage" src="" alt="프로필 사진">
+                        <h2 id="userName"></h2>
+                        <p id="userInfo"></p>
+                    </section>
+                <!-- 프로필 섹션 끝 -->
+            </div>
+            
+
+            <div class="map-container">
+                    <section>
+                        <h2>My Reservations</h2>
+                        <!-- 좌석 예약 섹션 -->
+                        <h3>좌석 예약 정보</h3>
+                        <ul id="seatReservationList">
+                            <!-- 좌석 예약 내역이 동적으로 추가될 영역 -->
+                        </ul>
+                    
+                        <!-- 공간 예약 섹션 -->
+                        <h3>공간 예약 정보</h3>
+                        <ul id="spaceReservationList">
+                            <!-- 공간 예약 내역이 동적으로 추가될 영역 -->
+                        </ul>
+                    </section>
+            </div>
+            <button onclick="location.href='main.html'">Back</button>
+            
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

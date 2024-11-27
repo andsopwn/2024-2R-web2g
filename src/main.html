@@ -15,6 +15,7 @@
                 <h2>공간 예약</h2>
                 <button onclick="location.href='space_reservation.html'" class="btn-primary">공간 예약하기</button>
                 <button onclick="location.href='seat_reservation.html'" class="btn-primary">좌석 예약하기</button>
+                <button onclick="location.href='my_reservation.html'" class="btn-primary">나의 예약 현황</button>
             </div>
             <div class="map-container">
                 <h2>캠퍼스 맵</h2>
@@ -24,6 +25,9 @@
                     <button class="campus-btn" onclick="switchCampus('shared')">세종공동캠퍼스</button>
                 </div>
                 <div id="map">
+                    <!--<img src="mapbg.jpg" alt="캠퍼스 배경" class="map-image" />-->
+                    
+                    <!-- 과학기술1관 -->
                     <svg id="sejong-map" viewBox="0 0 1200 700" class="map-image">
                         <rect class="building" x="80" y="300" width="220" height="160" onclick="showBuilding('과학기술1관')" />
                         <text x="190" y="390" class="building-label">과학기술1관</text>
@@ -45,6 +49,8 @@
                         <text x="450" y="600" class="building-label">산학협력관</text>
                         <rect class="building" x="80" y="550" width="230" height="100" onclick="showBuilding('ICT가속기관')" />
                         <text x="195" y="610" class="building-label">ICT가속기관</text>
+                        
+
                     </svg>
                     <svg id="seoul-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
                         <rect class="building" x="500" y="50" width="250" height="120" onclick="showBuilding('하나과학관')" />

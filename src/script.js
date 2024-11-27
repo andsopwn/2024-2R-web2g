@@ -8,7 +8,7 @@ function toggleSeat(seatElement) {
 const buildingFloors = {
     '과학기술1관': 8,
     '과학기술2관': 6,
-    // 다른 건물들 추가
+    // 다른 건물들 추가a
 };
 
 function updateFloors() {
@@ -95,3 +95,58 @@ function reserveSeats() {
         alert("모든 항목을 선택하고 좌석을 선택해주세요.");
     }
 }
+
+// 사용자 프로필 정보를 가져와서 표시하는 함수
+function fetchUserProfile() {
+    fetch('/api/user/profile') // 서버의 프로필 정보 API 엔드포인트
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('profileImage').src = data.profileImageUrl;
+            document.getElementById('userName').textContent = data.name;
+            document.getElementById('userInfo').textContent = `${data.studentId} | ${data.department}`;
+        })
+        .catch(error => {
+            console.error('프로필 정보를 가져오는 중 오류 발생:', error);
+        });
+}
+
+// 좌석 예약 정보를 가져와서 표시하는 함수
+function fetchSeatReservations() {
+    fetch('/api/reservations/seats') // 서버의 좌석 예약 정보 API 엔드포인트 (예시)
+        .then(response => response.json())
+        .then(data => {
+            const seatReservationList = document.getElementById('seatReservationList');
+            data.forEach(reservation => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${reservation.date} ${reservation.startTime}~${reservation.endTime} | ${reservation.building} ${reservation.room}호 | 좌석: ${reservation.seatNumbers.join(', ')}`;
+                seatReservationList.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('좌석 예약 정보를 가져오는 중 오류 발생:', error);
+        });
+}
+
+// 공간 예약 정보를 가져와서 표시하는 함수
+function fetchSpaceReservations() {
+    fetch('/api/reservations/spaces') // 서버의 공간 예약 정보 API 엔드포인트 (예시)
+        .then(response => response.json())
+        .then(data => {
+            const spaceReservationList = document.getElementById('spaceReservationList');
+            data.forEach(reservation => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${reservation.date} ${reservation.startTime}~${reservation.endTime} | ${reservation.building} ${reservation.room}호`;
+                spaceReservationList.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('공간 예약 정보를 가져오는 중 오류 발생:', error);
+        });
+}
+
+// 페이지 로드 시 프로필 정보와 예약 정보 가져오기
+document.addEventListener('DOMContentLoaded', () => {
+    fetchUserProfile();
+    fetchSeatReservations();
+    fetchSpaceReservations();
+});
