@@ -125,7 +125,7 @@ footer {
 
 
 /* 프로필 섹션 스타일 */
-#profileSection {
+.profileSection {
     display: flex;
     align-items: center;
     padding: 20px;
