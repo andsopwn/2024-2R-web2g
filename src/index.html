@@ -21,8 +21,26 @@
 
         <div class="content" id="section1">
             <h2>환영합니다!</h2>
-            <p>캠퍼스 공간 예약 시스템에 오신 것을 환영합니다. 로그인을 통해 편리하게 공간을 예약해보세요.</p>
-            <button onclick="location.href='main.html'" class="btn-primary">로그인 및 시작하기</button>
+            <p>캠퍼스 공간 예약 시스템에 오신 것을 환영합니다. 학번과 이름을 입력하여 시작해주세요.</p>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
+                <div class="form-group">
+                    <input type="text" 
+                           id="studentId" 
+                           required 
+                           pattern="[0-9]{10}" 
+                           placeholder="학번 (10자리)"
+                           class="form-input">
+                </div>
+                <div class="form-group">
+                    <input type="text" 
+                           id="studentName" 
+                           required 
+                           placeholder="이름"
+                           class="form-input">
+                </div>
+                <button type="submit" class="btn-primary">시작하기</button>
+            </form>
         </div>
     </section>
 
@@ -64,7 +82,7 @@
         const contents = document.querySelectorAll('.content');
         contents.forEach(content => observer.observe(content));
     </script>
-
+<script src="script.js"></script>
 </body>
 </html>
 
