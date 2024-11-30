@@ -20,27 +20,89 @@
         </div>
 
         <div class="content" id="section1">
-            <h2>환영합니다!</h2>
-            <p>캠퍼스 공간 예약 시스템에 오신 것을 환영합니다. 학번과 이름을 입력하여 시작해주세요.</p>
+            <div id="welcomeContent">
+                <h2>환영합니다!</h2>
+                <p>캠퍼스 공간 예약 시스템에 오신 것을 환영합니다. 시작하기 버튼을 눌러주세요.</p>
+                <button onclick="showLoginForm()" class="btn-primary">시작하기</button>
+            </div>
             
-            <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
-                <div class="form-group">
-                    <input type="text" 
-                           id="studentId" 
-                           required 
-                           pattern="[0-9]{10}" 
-                           placeholder="학번 (10자리)"
-                           class="form-input">
-                </div>
-                <div class="form-group">
-                    <input type="text" 
-                           id="studentName" 
-                           required 
-                           placeholder="이름"
-                           class="form-input">
-                </div>
-                <button type="submit" class="btn-primary">시작하기</button>
-            </form>
+            <div id="loginContent" style="display: none;">
+                <h2>로그인</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
+                    <div class="form-group">
+                        <input type="text" 
+                               id="studentId" 
+                               required 
+                               pattern="[0-9]{10}" 
+                               placeholder="학번을 입력하세요"
+                               class="form-input"
+                               autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" 
+                               id="password" 
+                               required 
+                               placeholder="비밀번호를 입력하세요"
+                               class="form-input"
+                               autocomplete="off">
+                    </div>
+                    <div class="button-group">
+                        <button type="button" onclick="showSignupForm()" class="btn-secondary">회원가입</button>
+                        <button type="submit" class="btn-primary">로그인</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 회원가입 폼 (처음에는 숨김) -->
+            <div id="signupContent" style="display: none;">
+                <h2>회원가입</h2>
+                <form id="signupForm" onsubmit="handleSignup(event)" class="login-form">
+                    <div class="form-group email-group">
+                        <div class="email-input-container">
+                            <input type="text" 
+                                   id="signupEmailLocal" 
+                                   required 
+                                   pattern="[a-zA-Z0-9]+"
+                                   placeholder="이메일 입력"
+                                   class="form-input email-local"
+                                   autocomplete="off"
+                                   onkeypress="return /[a-zA-Z0-9]/.test(event.key)"
+                                   onpaste="return false">
+                            <span class="email-separator">@</span>
+                            <select id="signupEmailDomain" class="form-input email-domain">
+                                <option value="korea.ac.kr">korea.ac.kr</option>
+                                <option value="koread.edu">koread.edu</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" 
+                               id="signupStudentId" 
+                               required 
+                               pattern="[0-9]{10}" 
+                               placeholder="학번 (10자리)"
+                               class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" 
+                               id="signupPassword" 
+                               required 
+                               placeholder="비밀번호"
+                               class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" 
+                               id="signupPasswordConfirm" 
+                               required 
+                               placeholder="비밀번호 확인"
+                               class="form-input">
+                    </div>
+                    <div class="button-group">
+                        <button type="button" onclick="showLoginForm()" class="btn-secondary">돌아가기</button>
+                        <button type="submit" class="btn-primary">가입하기</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 
@@ -62,27 +124,7 @@
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
 
-    <script>
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -10% 0px'
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, 100);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        const contents = document.querySelectorAll('.content');
-        contents.forEach(content => observer.observe(content));
-    </script>
-<script src="script.js"></script>
+    <script src="login.js"></script>
 </body>
 </html>
 
