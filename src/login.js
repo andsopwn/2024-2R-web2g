@@ -17,11 +17,6 @@ async function handleLogin(event) {
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
     
-    if (!/^\d{10}$/.test(studentId)) {
-        alert('학번은 10자리 숫자여야 합니다.');
-        return;
-    }
-    
     try {
         const response = await fetch('/login', {
             method: 'POST',
@@ -35,6 +30,8 @@ async function handleLogin(event) {
         const data = await response.json();
         
         if (response.ok) {
+            sessionStorage.setItem('userId', data.user.id);
+            sessionStorage.setItem('studentId', data.user.username);
             window.location.href = '/main';
         } else {
             alert(data.error || '로그인에 실패했습니다.');

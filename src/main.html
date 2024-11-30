@@ -65,31 +65,16 @@
         </div>
     </section>
 
+    <div class="user-info">
+        <p>학번: <span id="currentUser">로딩중...</span></p>
+        <button onclick="handleLogout()" class="btn-logout">로그아웃</button>
+    </div>
+
     <footer>
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
 
-    <script>
-    function showBuilding(buildingName) {
-        alert(`${buildingName} 건물이 선택되었습니다. 예약 가능한 공간을 확인해보세요.`);
-        // 예약 가능한 공간 확인 페이지로 이동
-    }
-
-    function switchCampus(campus) {
-        // 모든 맵 숨기기
-        document.getElementById('sejong-map').style.display = 'none';
-        document.getElementById('seoul-map').style.display = 'none';
-        document.getElementById('shared-map').style.display = 'none';
-        
-        // 선택된 맵 보이기
-        document.getElementById(`${campus}-map`).style.display = 'block';
-        
-        // 버튼 활성화 상태 변경
-        document.querySelectorAll('.campus-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-    }
-    </script>
+    <script src="session.js"></script>
+    <script src="rev.js"></script>
 </body>
 </html>

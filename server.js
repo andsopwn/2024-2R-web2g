@@ -30,23 +30,22 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24시간
+        maxAge: 24 * 60 * 60 * 1000
     }
 }));
 
-// 인증 미들웨어 수정
+// 인증 미들웨어 추가
 const authenticateUser = (req, res, next) => {
-    if (!req.session.userId) {
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-            return res.status(401).json({ error: '로그인이 필요합니다.' });
-        }
-        return res.redirect('/login');
+    if (req.session.isLoggedIn) {
+        next();
+    } else {
+        res.status(401).json({ error: '로그인이 필요합니다.' });
     }
-    next();
 };
 
+// 정적 파일 제공 전에 인증 미들웨어 적용
 app.use('/main.html', authenticateUser);
 app.use('/my_reservation.html', authenticateUser);
 app.use('/seat_reservation.html', authenticateUser);
@@ -72,37 +71,52 @@ db.connect((err) => {
 });
 
 
-app.get('/', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/main');
-    } else {
-        res.redirect('/login');
-    }
-});
-
 app.get('/login', (req, res) => {
     if (req.session.userId) {
-        res.redirect('/main');
-    } else {
-        res.sendFile(path.join(__dirname, 'src', 'index.html'));
+        return res.redirect('/dashboard');
     }
+    res.sendFile(path.join(__dirname, 'src', 'index.html'));
 });
 
 app.post('/login', (req, res) => {
-    const { studentId, studentName } = req.body;
-    
-    // 세션에 사용자 정보 저장
-    req.session.userId = studentId;
-    req.session.userName = studentName;
-    req.session.isLoggedIn = true;
-    
-    // 세션 저장 완료 후 응답
-    req.session.save((err) => {
+    const { studentId, password } = req.body;
+
+    const query = 'SELECT * FROM users WHERE username = ?';
+    db.query(query, [studentId], (err, results) => {
         if (err) {
-            console.error('세션 저장 오류:', err);
-            return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
+            console.error('DB 조회 오류:', err);
+            return res.status(500).json({ error: '서버 오류' });
         }
-        res.json({ success: true });
+
+        if (results.length === 0) {
+            return res.status(401).json({ error: '잘못된 학번 또는 비밀번호' });
+        }
+
+        const user = results[0];
+
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) {
+                console.error('비밀번호 비교 오류:', err);
+                return res.status(500).json({ error: '서버 오류' });
+            }
+
+            if (isMatch) {
+                req.session.userId = user.id;
+                req.session.studentId = user.username;
+                req.session.isLoggedIn = true;
+                
+                res.json({ 
+                    success: true, 
+                    redirect: '/main',
+                    user: {
+                        id: user.id,
+                        username: user.username
+                    }
+                });
+            } else {
+                res.status(401).json({ error: '잘못된 학번 또는 비밀번호' });
+            }
+        });
     });
 });
 
@@ -177,22 +191,31 @@ app.get('/space-reservation', authenticateUser, (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'space_reservation.html'));
 });
 
-// 세션 체크 API 엔드포인트 추가
+// 세션 체크 API 엔드포인트 수정
 app.get('/api/check-session', (req, res) => {
-    res.json({ isLoggedIn: !!req.session.userId });
+    if (req.session.isLoggedIn) {
+        res.json({ 
+            isLoggedIn: true, 
+            user: {
+                id: req.session.userId,
+                studentId: req.session.studentId
+            }
+        });
+    } else {
+        res.json({ isLoggedIn: false });
+    }
 });
 
-// 세션 체크 미들웨어 수정
-const checkAuth = (req, res, next) => {
-    if (req.session && req.session.isLoggedIn) {
-        next();
-    } else {
-        res.status(401).json({ error: '로그인이 필요합니다.' });
-    }
-};
-
-// API 라우트에 미들웨어 적용
-app.use('/api/*', checkAuth);
+// 로그아웃 라우트 추가
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('세션 삭제 오류:', err);
+            return res.status(500).json({ error: '로그아웃 처리 중 오류가 발생했습니다.' });
+        }
+        res.json({ success: true });
+    });
+});
 
 // 서버 시작
 app.listen(PORT, () => {
