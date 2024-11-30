@@ -26,80 +26,88 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(session({
-    secret: 'your_secret_key', // 반드시 안전한 키로 변경하세요
+    secret: 'tkdlqj1!',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
 }));
 
-app.use(express.static(path.join(__dirname, 'src')));
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'your_mysql_user',       // MySQL 사용자명
-    password: 'your_mysql_password', // MySQL 비밀번호
-    database: 'your_database_name'   // 생성한 데이터베이스명
-});
-
-
-db.connect((err) => {
-    if (err) {
-        console.error('MySQL 연결 오류:', err);
-        process.exit(1);
+// 인증 미들웨어 개선
+const requireAuth = (req, res, next) => {
+    if (!req.session.userId) {
+        if (req.xhr || req.headers.accept?.includes('json')) {
+            return res.status(401).json({ error: '로그인이 필요합니다.' });
+        }
+        return res.redirect('/');
     }
-    console.log('MySQL에 연결되었습니다.');
+    next();
+};
+
+// 로그인 상태 확인 미들웨어
+const checkLoginStatus = (req, res, next) => {
+    if (req.session.userId && req.path === '/') {
+        return res.redirect('/main');
+    }
+    next();
+};
+
+// 정적 파일 라우팅 전에 인증 미들웨어 적용
+app.get('/', checkLoginStatus, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'index.html'));
 });
 
+// 보호된 경로 설정
+const protectedPaths = [
+    '/main',
+    '/space-reservation',
+    '/seat-reservation',
+    '/my-reservation'
+];
 
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'login.html'));
-});
-
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-
-    const query = 'SELECT * FROM users WHERE username = ?';
-    db.query(query, [username], (err, results) => {
-        if (err) {
-            console.error('DB 조회 오류:', err);
-            return res.status(500).send('서버 오류');
-        }
-
-        if (results.length === 0) {
-            return res.status(401).send('잘못된 사용자명 또는 비밀번호');
-        }
-
-        const user = results[0];
-
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                console.error('비밀번호 비교 오류:', err);
-                return res.status(500).send('서버 오류');
-            }
-
-            if (isMatch) {
-                req.session.userId = user.id;
-                res.redirect('/dashboard');
-            } else {
-                res.status(401).send('잘못된 사용자명 또는 비밀번호');
-            }
-        });
+// 보호된 경로에 대한 인증 미들웨어 적용
+protectedPaths.forEach(path => {
+    app.get(path, requireAuth, (req, res) => {
+        const fileName = path === '/main' ? 'main.html' : 
+                        path.substring(1) + '.html';
+        res.sendFile(path.join(__dirname, 'src', fileName));
     });
 });
 
-app.get('/dashboard', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
+// API 엔드포인트에 대한 인증 미들웨어
+app.use('/api', requireAuth);
 
-    res.sendFile(path.join(__dirname, 'src', 'dashboard.html'));
+// 로그인 처리
+app.post('/login', async (req, res) => {
+    const { studentId, password } = req.body;
+    
+    try {
+        // DB에서 사용자 확인 로직
+        const user = await checkUserCredentials(studentId, password);
+        if (user) {
+            req.session.userId = user.id;
+            req.session.studentId = studentId;
+            res.json({ success: true, redirect: '/main' });
+        } else {
+            res.status(401).json({ error: '잘못된 로그인 정보입니다.' });
+        }
+    } catch (error) {
+        console.error('로그인 오류:', error);
+        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
 });
 
+// 로그아웃 처리
 app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
+    req.session.destroy(err => {
         if (err) {
-            console.error('세션 삭제 오류:', err);
+            console.error('로그아웃 오류:', err);
+            return res.status(500).json({ error: '로그아웃 처리 중 오류가 발생했습니다.' });
         }
-        res.redirect('/login');
+        res.redirect('/');
     });
 });
 

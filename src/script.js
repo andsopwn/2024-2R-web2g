@@ -359,3 +359,20 @@ function cancelReservation(reservationId) {
         alert('예약 취소에 실패했습니다.');
     });
 }
+
+// 페이지 로드 시 세션 체크
+async function checkSession() {
+    try {
+        const response = await fetch('/api/check-session');
+        const data = await response.json();
+        
+        if (!data.isLoggedIn) {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('세션 체크 오류:', error);
+    }
+}
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', checkSession);

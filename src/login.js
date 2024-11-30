@@ -12,23 +12,41 @@ function showSignupForm() {
 }
 
 // 로그인 처리 함수
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
     
-    // 학번 유효성 검사
     if (!/^\d{10}$/.test(studentId)) {
         alert('학번은 10자리 숫자여야 합니다.');
         return;
     }
     
-    // 여기에 로그인 처리 로직을 추가하시면 됩니다
-    console.log('로그인 시도:', studentId);
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ studentId, password }),
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.location.href = '/main';
+        } else {
+            alert(data.error || '로그인에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('로그인 오류:', error);
+        alert('로그인 처리 중 오류가 발생했습니다.');
+    }
 }
 
 // 회원가입 처리 함수
-function handleSignup(event) {
+async function handleSignup(event) {
     event.preventDefault();
     const emailLocal = document.getElementById('signupEmailLocal').value;
     const emailDomain = document.getElementById('signupEmailDomain').value;
@@ -37,25 +55,42 @@ function handleSignup(event) {
     const password = document.getElementById('signupPassword').value;
     const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
     
-    // 이메일 로컬 파트 유효성 검사 (영문, 숫자만)
     if (!/^[a-zA-Z0-9]+$/.test(emailLocal)) {
         alert('이메일은 영문과 숫자만 입력 가능합니다.');
         return;
     }
     
-    // 학번 유효성 검사
     if (!/^\d{10}$/.test(studentId)) {
         alert('학번은 10자리 숫자여야 합니다.');
         return;
     }
     
-    // 비밀번호 일치 검사
     if (password !== passwordConfirm) {
         alert('비밀번호가 일치하지 않습니다.');
         return;
     }
     
-    console.log('회원가입 시도:', email, studentId);
+    try {
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, studentId, password })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(data.message);
+            showLoginForm();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        console.error('회원가입 오류:', error);
+        alert('회원가입 처리 중 오류가 발생했습니다.');
+    }
 }
 
 // 페이지 로드 시 애니메이션 처리
