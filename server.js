@@ -81,6 +81,23 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     const { studentId, password } = req.body;
 
+    // 테스트 계정
+    if (studentId === '2024112233' && password === 'test') {
+        req.session.userId = 'test';
+        req.session.studentId = '2024112233';
+        req.session.isLoggedIn = true;
+        
+        return res.json({ 
+            success: true, 
+            redirect: '/main',
+            user: {
+                id: 'test',
+                username: '2024112233'
+            }
+        });
+    }
+    // 테스트 계정 끝
+
     const query = 'SELECT * FROM users WHERE username = ?';
     db.query(query, [studentId], (err, results) => {
         if (err) {
