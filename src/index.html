@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Reservation - Welcome</title>
-    <style>
-        @import url("index.css");
-    </style>
+    <link rel="stylesheet" href="index.css">
+    <script src="login.js" defer></script>
 </head>
 <body>
     <header>
@@ -14,8 +13,8 @@
     </header>
 
     <section class="section1">
-        <div class="video-background">
-            <iframe src="https://www.youtube.com/embed/LIP-r0qCmeU?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0"
+     <div class="video-background">
+               <iframe src="https://www.youtube.com/embed/LIP-r0qCmeU?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0"
                     frameborder="0" allow="autoplay; fullscreen"></iframe>
         </div>
 
@@ -75,6 +74,16 @@
                             </select>
                         </div>
                     </div>
+                    <!-- 이름 입력 필드 추가 -->
+                    <div class="form-group">
+                        <input type="text" 
+                               id="signupName" 
+                               required 
+                               pattern="[가-힣]{2,10}"
+                               placeholder="이름 (한글)"
+                               class="form-input"
+                               autocomplete="off">
+                    </div>
                     <div class="form-group">
                         <input type="text" 
                                id="signupStudentId" 
@@ -123,8 +132,6 @@
     <footer>
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
-
-    <script src="login.js"></script>
 </body>
 </html>
 

@@ -41,22 +41,24 @@ section {
     overflow: hidden;
 }
 
+.section1 {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
+
 .video-background {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    z-index: -1;
+    z-index: 1;
 }
+
 .video-background iframe {
-    width: 100vw;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
@@ -65,19 +67,22 @@ section {
     max-width: 800px;
     text-align: center;
     color: #fff;
-    z-index: 1;
+    z-index: 2;
     opacity: 0;
-    
 }
 
 .content#section1 {
+    position: relative;
+    z-index: 2;
     transform: scale(0.9) translateY(50px);
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.6);
     padding: 20px 30px;
     border-radius: 10px;
     backdrop-filter: blur(5px);
+    margin: 0 auto;
+    max-width: 600px;
 }
 
 .content.visible {

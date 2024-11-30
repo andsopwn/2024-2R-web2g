@@ -1,42 +1,35 @@
-// server.js
-
+// 필요한 모듈 import
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
-const bcrypt = require('bcrypt');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const livereload = require('livereload');
-const connectLivereload = require('connect-livereload');
+const config = require('./config');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const liveReloadServer = livereload.createServer();
-liveReloadServer.watch(path.join(__dirname, 'src'));
-
-liveReloadServer.server.once("connection", () => {
-    setTimeout(() => {
-        liveReloadServer.refresh("/");
-    }, 100);
-});
-
-app.use(connectLivereload());
+// 미들웨어 설정
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(session(config.session));
 
-app.use(session({
-    secret: 'tkdlqj1!',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000
+// 정적 파일 제공
+app.use(express.static(path.join(__dirname, 'src')));
+
+// MySQL 연결 설정
+const db = mysql.createConnection(config.db);
+
+// 데이터베이스 연결
+db.connect(err => {
+    if (err) {
+        console.error('데이터베이스 연결 실패:', err);
+        process.exit(1);
     }
-}));
+    console.log('데이터베이스 연결 성공');
+});
 
-// 인증 미들웨어 추가
+// 인증 미들웨어
 const authenticateUser = (req, res, next) => {
     if (req.session.isLoggedIn) {
         next();
@@ -45,196 +38,245 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
-// 정적 파일 제공 전에 인증 미들웨어 적용
-app.use('/main.html', authenticateUser);
-app.use('/my_reservation.html', authenticateUser);
-app.use('/seat_reservation.html', authenticateUser);
-app.use('/space_reservation.html', authenticateUser);
-
-// 정적 파일 제공
-app.use(express.static(path.join(__dirname, 'src')));
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',       // MySQL 사용자명
-    password: 'tkdlqj1!', // MySQL 비밀번호
-    database: 'webp'   // 생성한 데이터베이스명
-});
-
-
-db.connect((err) => {
-    if (err) {
-        console.error('MySQL 연결 오류:', err);
-        process.exit(1);
-    }
-    console.log('MySQL에 연결되었습니다.');
-});
-
-
-app.get('/login', (req, res) => {
-    if (req.session.userId) {
-        return res.redirect('/dashboard');
-    }
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
-});
-
-app.post('/login', (req, res) => {
+// API 라우트
+// 사용자 로그인 API
+app.post('/login', async (req, res) => {
     const { studentId, password } = req.body;
 
-    // 테스트 계정
-    if (studentId === '2024112233' && password === 'test') {
-        req.session.userId = 'test';
-        req.session.studentId = '2024112233';
-        req.session.isLoggedIn = true;
-        
-        return res.json({ 
-            success: true, 
-            redirect: '/main',
-            user: {
-                id: 'test',
-                username: '2024112233'
-            }
-        });
-    }
-    // 테스트 계정 끝
+    try {
+        // 사용자 확인
+        db.query(
+            'SELECT * FROM users WHERE student_id = ?',
+            [studentId],
+            (err, results) => {
+                if (err) {
+                    console.error('로그인 조회 오류:', err);
+                    return res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
+                }
 
-    const query = 'SELECT * FROM users WHERE username = ?';
-    db.query(query, [studentId], (err, results) => {
-        if (err) {
-            console.error('DB 조회 오류:', err);
-            return res.status(500).json({ error: '서버 오류' });
-        }
+                if (results.length === 0) {
+                    return res.status(401).json({ error: '학번 또는 비밀번호가 일치하지 않습니다.' });
+                }
 
-        if (results.length === 0) {
-            return res.status(401).json({ error: '잘못된 학번 또는 비밀번호' });
-        }
-
-        const user = results[0];
-
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                console.error('비밀번호 비교 오류:', err);
-                return res.status(500).json({ error: '서버 오류' });
-            }
-
-            if (isMatch) {
-                req.session.userId = user.id;
-                req.session.studentId = user.username;
-                req.session.isLoggedIn = true;
+                const user = results[0];
                 
+                // 비밀번호 확인 (실제로는 암호화된 비밀번호를 비교해야 함)
+                if (password !== user.password) {
+                    return res.status(401).json({ error: '학번 또는 비밀번호가 일치하지 않습니다.' });
+                }
+
+                // 세션에 사용자 정보 저장
+                req.session.isLoggedIn = true;
+                req.session.studentId = user.student_id;
+                req.session.userId = user.id;
+
                 res.json({ 
-                    success: true, 
-                    redirect: '/main',
+                    message: '로그인 성공',
                     user: {
                         id: user.id,
-                        username: user.username
+                        username: user.student_id
                     }
                 });
-            } else {
-                res.status(401).json({ error: '잘못된 학번 또는 비밀번호' });
             }
-        });
-    });
-});
-
-app.get('/dashboard', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
+        );
+    } catch (error) {
+        console.error('로그인 오류:', error);
+        res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다.' });
     }
-
-    res.sendFile(path.join(__dirname, 'src', 'main.html'));
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('세션 삭제 오류:', err);
-        }
-        res.redirect('/login');
-    });
-});
-
+// 회원가입 API
 app.post('/signup', async (req, res) => {
     const { email, studentId, password } = req.body;
 
     try {
-        // 이미 존재하는 학번인지 확인
-        const existingUser = await new Promise((resolve, reject) => {
-            db.query('SELECT * FROM users WHERE username = ? OR email = ?', 
-                    [studentId, email], 
-                    (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        });
+        // 이미 존재하는 사용자인지 확인
+        db.query(
+            'SELECT * FROM users WHERE student_id = ? OR email = ?',
+            [studentId, email],
+            (err, results) => {
+                if (err) {
+                    console.error('회원가입 조회 오류:', err);
+                    return res.status(500).json({ error: '회원가입 처리 중 오류가 발생했습니다.' });
+                }
 
-        if (existingUser.length > 0) {
-            return res.status(400).json({ error: '이미 등록된 학번 또는 이메일입니다.' });
-        }
+                if (results.length > 0) {
+                    return res.status(400).json({ error: '이미 등록된 학번 또는 이메일입니다.' });
+                }
 
-        // 비밀번호 해시화
-        const hashedPassword = await bcrypt.hash(password, 10);
+                // 새 사용자 등록
+                db.query(
+                    'INSERT INTO users (student_id, email, password) VALUES (?, ?, ?)',
+                    [studentId, email, password], // 실제로는 비밀번호를 암호화해야 함
+                    (err, result) => {
+                        if (err) {
+                            console.error('회원가입 저장 오류:', err);
+                            return res.status(500).json({ error: '회원가입 처리 중 오류가 발생했습니다.' });
+                        }
 
-        // 사용자 등록
-        const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-        db.query(query, [studentId, email, hashedPassword], (err, result) => {
-            if (err) {
-                console.error('회원가입 오류:', err);
-                return res.status(500).json({ error: '서버 오류' });
+                        res.json({ message: '회원가입이 완료되었습니다.' });
+                    }
+                );
             }
-            res.json({ success: true, message: '회원가입이 완료되었습니다.' });
-        });
-
+        );
     } catch (error) {
-        console.error('회원가입 처리 오류:', error);
-        res.status(500).json({ error: '서버 오류' });
+        console.error('회원가입 오류:', error);
+        res.status(500).json({ error: '회원가입 처리 중 오류가 발생했습니다.' });
     }
 });
-
-// 보호된 경로에 대한 라우트 추가
-app.get('/main', authenticateUser, (req, res) => {
+// 메인 페이지 라우트
+app.get('/main', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'main.html'));
 });
 
-app.get('/my-reservation', authenticateUser, (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'my_reservation.html'));
+// 로그아웃 라우트
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: '로그아웃 처리 중 오류가 발생했습니다.' });
+        }
+        res.json({ message: '로그아웃 되었습니다.' });
+    });
 });
-
-app.get('/seat-reservation', authenticateUser, (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'seat_reservation.html'));
-});
-
-app.get('/space-reservation', authenticateUser, (req, res) => {
+// 공간 예약 페이지 라우트
+app.get('/space_reservation', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'space_reservation.html'));
 });
 
-// 세션 체크 API 엔드포인트 수정
-app.get('/api/check-session', (req, res) => {
-    if (req.session.isLoggedIn) {
-        res.json({ 
-            isLoggedIn: true, 
-            user: {
-                id: req.session.userId,
-                studentId: req.session.studentId
-            }
-        });
-    } else {
-        res.json({ isLoggedIn: false });
-    }
+// 좌석 예약 페이지 라우트
+app.get('/seat_reservation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'seat_reservation.html'));
 });
 
-// 로그아웃 라우트 추가
-app.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('세션 삭제 오류:', err);
-            return res.status(500).json({ error: '로그아웃 처리 중 오류가 발생했습니다.' });
+// 내 예약 확인 페이지 라우트
+app.get('/my_reservations', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'my_reservation.html'));
+});
+//  건물 관련 API
+app.get('/api/buildings', authenticateUser, (req, res) => {
+    db.query(
+        'SELECT building_id, name FROM buildings ORDER BY name',
+        (err, results) => {
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: '건물 목록 조회 실패' });
+            }
+            res.json(results);
         }
-        res.json({ success: true });
-    });
+    );
+});
+
+//  층 관련 API
+app.get('/api/buildings/:buildingId/floors', authenticateUser, (req, res) => {
+    const buildingId = req.params.buildingId;
+    db.query(
+        'SELECT DISTINCT floor FROM rooms WHERE building_id = ? ORDER BY floor',
+        [buildingId],
+        (err, results) => {
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: '층 목록 조회 실패' });
+            }
+            res.json(results);
+        }
+    );
+});
+
+//  호실 관련 API
+app.get('/api/rooms/:buildingId/:floor', authenticateUser, (req, res) => {
+    const { buildingId, floor } = req.params;
+    db.query(
+        `SELECT r.room_id, r.room_number, r.capacity, r.room_type, r.status 
+         FROM rooms r 
+         WHERE r.building_id = ? AND r.floor = ? 
+         ORDER BY r.room_number`,
+        [buildingId, floor],
+        (err, results) => {
+            if (err) {
+                console.error('Error:', err);
+                return res.status(500).json({ error: '호실 목록 조회 실패' });
+            }
+            res.json(results);
+        }
+    );
+});
+
+// 호실 예약 API
+app.post('/api/room-reservations', authenticateUser, (req, res) => {
+    const { roomId, date, startTime, endTime } = req.body;
+    const hostId = req.session.studentId;
+    
+    console.log('예약 요청 데이터:', { roomId, date, startTime, endTime, hostId }); // 디버깅용 로그
+
+    // 입력값 검증
+    if (!roomId || !date || !startTime || !endTime || !hostId) {
+        return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+    }
+
+    // 중복 예약 확인
+    db.query(
+        `SELECT * FROM room_reservations 
+         WHERE room_id = ? 
+         AND reservation_date = ? 
+         AND ((start_time <= ? AND end_time > ?) 
+         OR (start_time < ? AND end_time >= ?))`,
+        [roomId, date, endTime, startTime, endTime, startTime],
+        (err, results) => {
+            if (err) {
+                console.error('예약 확인 중 오류:', err);
+                return res.status(500).json({ error: '예약 확인 중 오류가 발생했습니다.' });
+            }
+            
+            if (results.length > 0) {
+                return res.status(400).json({ error: '해당 시간에 이미 예약이 존재합니다.' });
+            }
+            
+            // 새 예약 생성
+            db.query(
+                `INSERT INTO room_reservations 
+                 (room_id, host_id, reservation_date, start_time, end_time) 
+                 VALUES (?, ?, ?, ?, ?)`,
+                [roomId, hostId, date, startTime, endTime],
+                (err, result) => {
+                    if (err) {
+                        console.error('예약 생성 중 오류:', err);
+                        console.error('SQL 에러:', err.sqlMessage); // SQL 에러 메시지 출력
+                        return res.status(500).json({ error: '예약 생성에 실패했습니다.' });
+                    }
+                    
+                    res.json({ 
+                        success: true,
+                        message: '예약이 성공적으로 완료되었습니다.',
+                        reservationId: result.insertId 
+                    });
+                }
+            );
+        }
+    );
+});
+//  예약 조회 API
+app.get('/api/room-reservations', authenticateUser, (req, res) => {
+    const hostId = req.session.studentId;
+    
+    db.query(
+        `SELECT rr.*, r.room_number, b.name as building_name 
+         FROM room_reservations rr
+         JOIN rooms r ON rr.room_id = r.room_id
+         JOIN buildings b ON r.building_id = b.building_id
+         WHERE rr.host_id = ?
+         ORDER BY rr.reservation_date DESC, rr.start_time DESC`,
+        [hostId],
+        (err, results) => {
+            if (err) {
+                console.error('예약 조회 중 오류:', err);
+                return res.status(500).json({ error: '예약 조회 실패' });
+            }
+            res.json(results);
+        }
+    );
 });
 
 // 서버 시작
 app.listen(PORT, () => {
-    console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+    console.log(`Server is running on port ${PORT}`);
 });

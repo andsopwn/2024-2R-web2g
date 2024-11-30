@@ -15,43 +15,48 @@
         <div class="content">
             <h2>공간 예약</h2>
             <div class="selection-area">
-                <div class="selection-group">
-                    <label for="building">건물:</label>
-                    <select id="building" onchange="updateFloors()">
-                        <option value="">건물을 선택하세요</option>
-                        <option value="과학기술1관">과학기술1관</option>
-                        <option value="과학기술2관">과학기술2관</option>
-                        <!-- 다른 건물들 추가 -->
-                    </select>
-                </div>
-                <div class="selection-group">
-                    <label for="floor">층:</label>
-                    <select id="floor" onchange="updateRooms()">
-                        <option value="">층을 선택하세요</option>
-                        <option value="1층">1층</option>
-                    </select>
-                </div>
-                <div class="selection-group">
-                    <label for="room">호실:</label>
-                    <select id="room">
-                        <option value="">호실을 선택하세요</option>
-                        <option value="1A">1A</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="time-selection">
-                <label for="date">날짜:</label>
-                <input type="date" id="date">
-                <label for="startTime">시작 시간:</label>
-                <input type="time" id="startTime">
-                <label for="endTime">종료 시간:</label>
-                <input type="time" id="endTime">
-            </div>
-
-            <div class="button-group">
-                <button class="btn-primary" onclick="reserveSpace()">예약하기</button>
-                <button class="btn-primary" onclick="location.href='main.html'">돌아가기</button>
+                <form id="reservationForm" onsubmit="event.preventDefault(); submitReservation();">
+                    <div class="selection-group">
+                        <label for="building">건물:</label>
+                        <select id="building" required>
+                            <option value="">건물을 선택하세요</option>
+                        </select>
+                    </div>
+                    
+                    <div class="selection-group">
+                        <label for="floor">층:</label>
+                        <select id="floor" required>
+                            <option value="">층을 선택하세요</option>
+                        </select>
+                    </div>
+                    
+                    <div class="selection-group">
+                        <label for="room">호실:</label>
+                        <select id="room" required>
+                            <option value="">호실을 선택하세요</option>
+                        </select>
+                    </div>
+                    
+                    <div class="selection-group">
+                        <label for="date">날짜:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="selection-group">
+                        <label for="startTime">시작 시간:</label>
+                        <input type="time" id="startTime" required>
+                    </div>
+                    
+                    <div class="selection-group">
+                        <label for="endTime">종료 시간:</label>
+                        <input type="time" id="endTime" required>
+                    </div>
+                    
+                    <div class="button-container">
+                        <button type="submit" class="btn-primary">예약하기</button>
+                        <button type="button" class="btn-primary" onclick="location.href='main.html'">돌아가기</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -65,7 +70,7 @@
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="rev.js"></script>
     <script src="session.js"></script>
 </body>
 </html>
