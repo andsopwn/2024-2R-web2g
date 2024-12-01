@@ -11,8 +11,8 @@ USE webp;
 ``` sql
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(10) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    student_id VARCHAR(10) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL,
     password VARCHAR(60) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

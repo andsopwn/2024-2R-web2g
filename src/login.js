@@ -45,48 +45,53 @@ async function handleLogin(event) {
 // 회원가입 처리 함수
 async function handleSignup(event) {
     event.preventDefault();
+    
+    // ID를 사용하여 직접 값을 가져옴
     const emailLocal = document.getElementById('signupEmailLocal').value;
     const emailDomain = document.getElementById('signupEmailDomain').value;
-    const email = emailLocal + '@' + emailDomain;
     const studentId = document.getElementById('signupStudentId').value;
+    const name = document.getElementById('signupName').value;
     const password = document.getElementById('signupPassword').value;
     const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
-    
-    if (!/^[a-zA-Z0-9]+$/.test(emailLocal)) {
-        alert('이메일은 영문과 숫자만 입력 가능합니다.');
-        return;
-    }
-    
-    if (!/^\d{10}$/.test(studentId)) {
-        alert('학번은 10자리 숫자여야 합니다.');
-        return;
-    }
-    
+
+    // 비밀번호 확인
     if (password !== passwordConfirm) {
         alert('비밀번호가 일치하지 않습니다.');
         return;
     }
-    
+
+    // 데이터 유효성 검사
+    if (!emailLocal || !emailDomain || !studentId || !name || !password) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+    }
+
     try {
         const response = await fetch('/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, studentId, password })
+            body: JSON.stringify({
+                emailLocal,
+                emailDomain,
+                studentId,
+                name,
+                password
+            })
         });
 
         const data = await response.json();
         
-        if (response.ok) {
-            alert(data.message);
-            showLoginForm();
-        } else {
-            alert(data.error);
+        if (!response.ok) {
+            throw new Error(data.error || '회원가입 실패');
         }
+
+        alert('회원가입이 완료되었습니다.');
+        showLoginForm(); // 로그인 폼으로 돌아가기
     } catch (error) {
+        alert(error.message);
         console.error('회원가입 오류:', error);
-        alert('회원가입 처리 중 오류가 발생했습니다.');
     }
 }
 

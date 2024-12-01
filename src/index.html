@@ -84,6 +84,15 @@
                                class="form-input">
                     </div>
                     <div class="form-group">
+                        <input type="text" 
+                               id="signupName" 
+                               required 
+                               pattern="^[가-힣a-zA-Z\s]{2,50}$"
+                               placeholder="이름 (한글 또는 영문)"
+                               class="form-input"
+                               autocomplete="off">
+                    </div>
+                    <div class="form-group">
                         <input type="password" 
                                id="signupPassword" 
                                required 
