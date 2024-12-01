@@ -155,3 +155,24 @@ footer {
 .btn-logout:hover {
     background-color: #c82333;
 }
+
+/* 호실 상태별 색상 */
+.status-available {
+    color: #28a745 !important;  /* 초록색 */
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.status-occupied {
+    color: #dc3545 !important;  /* 빨간색 */
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.status-maintenance {
+    color: #ffc107 !important;  /* 노란색 */
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* 비활성화된 옵션 스타일 */
+select option:disabled {
+    opacity: 0.7;
+}

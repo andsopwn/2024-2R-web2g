@@ -17,18 +17,14 @@
             <div class="selection-area">
                 <div class="selection-group">
                     <label for="building">건물:</label>
-                    <select id="building" onchange="updateFloors()">
+                    <select id="building">
                         <option value="">건물을 선택하세요</option>
-                        <option value="과학기술1관">과학기술1관</option>
-                        <option value="과학기술2관">과학기술2관</option>
-                        <!-- 다른 건물들 추가 -->
                     </select>
                 </div>
                 <div class="selection-group">
                     <label for="floor">층:</label>
-                    <select id="floor" onchange="updateRooms()">
+                    <select id="floor">
                         <option value="">층을 선택하세요</option>
-                        <option value="1층">1층</option>
                     </select>
                 </div>
                 <div class="selection-group">
@@ -40,13 +36,39 @@
                 </div>
             </div>
             
-            <div class="time-selection">
+            <<div class="time-selection">
                 <label for="date">날짜:</label>
-                <input type="date" id="date">
+                <input type="date" id="date" required>
+                
                 <label for="startTime">시작 시간:</label>
-                <input type="time" id="startTime">
+                <select id="startTime" required>
+                    <option value="">시작 시간 선택</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                </select>
+                
                 <label for="endTime">종료 시간:</label>
-                <input type="time" id="endTime">
+                <select id="endTime" required>
+                    <option value="">종료 시간 선택</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                    <option value="19:00">19:00</option>
+                </select>
             </div>
 
             <div class="button-group">
@@ -65,7 +87,7 @@
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="rev.js"></script>
     <script src="session.js"></script>
 </body>
 </html>

@@ -4,46 +4,128 @@ function toggleSeat(seatElement) {
     seatElement.classList.toggle('selected');
 }
 
-// 건물별 층수 정보
-const buildingFloors = {
-    '과학기술1관': 8,
-    '과학기술2관': 6,
-    // 다른 건물들 추가
-};
+// 건물 목록을 가져오는 함수
+async function loadBuildings() {
+    try {
+        const response = await fetch('/api/buildings', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-function updateFloors() {
-    const building = document.getElementById('building').value;
-    const floorSelect = document.getElementById('floor');
-    floorSelect.innerHTML = '<option value="">층을 선택하세요</option>';
-    
-    if (building) {
-        const maxFloor = buildingFloors[building];
-        for (let i = 1; i <= maxFloor; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = `${i}층`;
-            floorSelect.appendChild(option);
+        if (!response.ok) {
+            throw new Error('건물 목록을 가져오는데 실패했습니다.');
         }
+
+        const buildings = await response.json();
+            console.log('받아온 건물 데이터:', buildings); // 디버깅용 로그
+
+        const buildingSelect = document.getElementById('building');
+        buildingSelect.innerHTML = '<option value="">건물을 선택하세요</option>';
+        
+        buildings.forEach(building => {
+            const option = document.createElement('option');
+            option.value = building.building_id;
+            option.textContent = building.name;
+            buildingSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('건물 목록 로딩 실패:', error);
+        alert('건물 목록을 불러오는데 실패했습니다.');
     }
 }
 
-function updateRooms() {
+// 선택된 건물의 층 옵션을 업데이트하는 함수
+async function updateFloors() {
+    const buildingId = document.getElementById('building').value;
+    const floorSelect = document.getElementById('floor');
+    
+    // 초기화
+    floorSelect.innerHTML = '<option value="">층을 선택하세요</option>';
+    
+    if (!buildingId) return;
+
+    try {
+        console.log('선택된 건물 ID:', buildingId); // 디버깅용
+
+        const response = await fetch(`/api/buildings/${buildingId}`);
+        if (!response.ok) {
+            throw new Error('건물 정보를 가져오는데 실패했습니다.');
+        }
+
+        const building = await response.json();
+        console.log('받아온 건물 정보:', building); // 디버깅용
+
+        // 지하층 옵션 추가 (있는 경우)
+        if (building.basement_floors > 0) {
+            for (let i = building.basement_floors; i > 0; i--) {
+                const option = document.createElement('option');
+                option.value = `B${i}`;
+                option.textContent = `B${i}층`;
+                floorSelect.appendChild(option);
+            }
+        }
+        
+        // 지상층 옵션 추가
+        for (let i = 1; i <= building.ground_floors; i++) {
+            const option = document.createElement('option');
+            option.value = `${i}`;
+            option.textContent = `${i}층`;
+            floorSelect.appendChild(option);
+        }
+    } catch (error) {
+        console.error('층 정보 로딩 실패:', error);
+        alert('층 정보를 불러오는데 실패했습니다.');
+    }
+}
+
+// 선택된 층의 호실 목록을 업데이트하는 함수
+async function updateRooms() {
+    const buildingId = document.getElementById('building').value;
     const floor = document.getElementById('floor').value;
     const roomSelect = document.getElementById('room');
+    
+    // 초기화
     roomSelect.innerHTML = '<option value="">호실을 선택하세요</option>';
     
-    if (floor) {
-        // 현재 페이지가 좌석예약인지 공��예약인지 확인
-        const isSpaceReservation = window.location.pathname.includes('space_reservation');
-        const start = isSpaceReservation ? 1 : 2; // 홀수/짝수 구분
-        
-        for (let i = start; i <= 50; i += 2) {
-            const roomNumber = `${floor}${i.toString().padStart(2, '0')}`;
-            const option = document.createElement('option');
-            option.value = roomNumber;
-            option.textContent = `${roomNumber}호`;
-            roomSelect.appendChild(option);
+    if (!buildingId || !floor) return;
+
+    try {
+        const response = await fetch(`/api/rooms/${buildingId}/${floor}`);
+        if (!response.ok) {
+            throw new Error('호실 정보를 가져오는데 실패했습니다.');
         }
+
+        const rooms = await response.json();
+        console.log('받아온 호실 데이터:', rooms); // 디버깅용
+        
+        rooms.forEach(room => {
+            const option = document.createElement('option');
+            option.value = room.room_id;
+            
+            let statusText = '예약 가능';
+            option.className = 'status-available';
+            
+            if (room.status === 'occupied') {
+                statusText = '예약 불가';
+                option.className = 'status-occupied';
+                option.disabled = true;
+            } else if (room.status === 'maintenance') {
+                statusText = '점검 중';
+                option.className = 'status-maintenance';
+                option.disabled = true;
+            }
+            
+            option.textContent = `${room.room_number} (${statusText})`;
+            if (room.capacity) {
+                option.textContent += ` - 수용인원: ${room.capacity}명`;
+            }
+            roomSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('호실 목록 로딩 실패:', error);
+        alert('호실 목록을 불러오는데 실패했습니다.');
     }
 }
 
@@ -62,57 +144,74 @@ function loadSeats() {
         seatGrid.appendChild(seat);
     }
 }
+//시간 선택 유효성 검사
+function validateTimeSelection() {
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    
+    if (!startTime || !endTime) {
+        alert('시작 시간과 종료 시간을 모두 선택해주세요.');
+        return false;
+    }
+    
+    // 시작 시간이 종료 시간보다 늦은 경우
+    if (startTime >= endTime) {
+        alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+        return false;
+    }
+    
+    return true;
+}
 
 async function reserveSpace() {
-    const building = document.getElementById('building').value;
-    const floor = document.getElementById('floor').value;
-    const room = document.getElementById('room').value;
+    if (!validateTimeSelection()) {
+        return;
+    }
+}
+
+async function reserveSpace() {
+    // 필수 입력값 검증
+    const roomId = document.getElementById('room').value;
     const date = document.getElementById('date').value;
     const startTime = document.getElementById('startTime').value;
     const endTime = document.getElementById('endTime').value;
-    const studentId = sessionStorage.getItem('studentId');
-    const studentName = sessionStorage.getItem('studentName');
 
-    if (building && floor && room && date && startTime && endTime) {
-        try {
-            const response = await fetch('/api/reservations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    building,
-                    floor,
-                    room,
-                    date,
-                    startTime,
-                    endTime,
-                    studentId,
-                    studentName,
-                    reservationType: 'space'
-                })
-            });
+    if (!roomId || !date || !startTime || !endTime) {
+        alert('모든 항목을 선택해주세요.');
+        return;
+    }
 
-            if (!response.ok) {
-                throw new Error('예약 실패');
-            }
+    // 시간 유효성 검사
+    if (!validateTimeSelection()) {
+        return;
+    }
 
-            alert(`예약이 완료되었습니다!\n\n` + 
-                `예약자: ${studentName}(${studentId})\n` +
-                `건물: ${building}\n` +
-                `층: ${floor}\n` +
-                `호실: ${room}\n` +
-                `날짜: ${date}\n` +
-                `시간: ${startTime} - ${endTime}`);
-            
-            window.location.href = 'my_reservation.html';
-            
-        } catch (error) {
-            console.error('Error:', error);
-            alert('예약 처리 중 오류가 발생했습니다.');
+    try {
+        const response = await fetch('/api/room-reservations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roomId,
+                date,
+                startTime,
+                endTime
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || '예약 처리 중 오류가 발생했습니다.');
         }
-    } else {
-        alert('모든 항목을 입력해주세요.');
+
+        alert('예약이 완료되었습니다.');
+        window.location.href = 'my_reservation.html';
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
     }
 }
 
@@ -244,38 +343,52 @@ function showBuilding(buildingName) {
     // 건물 선택 시 select 박스 값 변경
     const buildingSelect = document.getElementById('building');
     if (buildingSelect) {
-        buildingSelect.value = buildingName;
-        updateFloors(); // 층수 업데이트 트리거
+        buildingSelect.value = buildingId;
+        // change 이벤트만 발생시키고, API 호출은 updateFloors에서 한 번만 하도록 함
+        buildingSelect.dispatchEvent(new Event('change'));
     }
-    
     // 알림 표시
     alert(`${buildingName}이(가) 선택되었습니다.`);
 }
 
-
+// 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    // 예약 목록 로드 (my_reservation.html)
     if (document.getElementById('reservationList')) {
         loadReservations();
     }
 
+    // 캠퍼스 맵 초기화
     if (document.getElementById('sejong-map')) {
         switchCampus('sejong');
     }
-    
-    // 건물 선택 이벤트 리스너 추가
+
+    // 공간 예약 관련 초기화 (space_reservation.html)
     const buildingSelect = document.getElementById('building');
-    if (buildingSelect) {
-        buildingSelect.addEventListener('change', updateFloors);
-    }
-    
-    // 층 선택 이벤트 리스너 추가
     const floorSelect = document.getElementById('floor');
-    if (floorSelect) {
-        floorSelect.addEventListener('change', updateRooms);
+    const roomSelect = document.getElementById('room');
+
+    // 건물 선택 관련
+    if (buildingSelect) {
+        // 건물 목록 로드
+        loadBuildings();
+        
+        // 건물 선택 시 층 업데이트
+        buildingSelect.addEventListener('change', function() {
+            console.log('건물 선택 변경됨:', this.value);
+            updateFloors();
+        });
     }
     
-    // 호실 선택 이벤트 리스너 추가
-    const roomSelect = document.getElementById('room');
+    // 층 선택 관련
+    if (floorSelect) {
+        floorSelect.addEventListener('change', function() {
+            console.log('층 선택 변경됨:', this.value);
+            updateRooms();
+        });
+    }
+    
+    // 호실 선택 관련
     if (roomSelect) {
         roomSelect.addEventListener('change', loadSeats);
     }

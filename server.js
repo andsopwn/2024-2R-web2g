@@ -258,6 +258,132 @@ app.get('/api/check-session', (req, res) => {
     }
 });
 
+// 모든 건물 목록 조회
+app.get('/api/buildings', (req, res) => {
+    const query = 'SELECT building_id, name FROM buildings ORDER BY name';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('건물 목록 조회 오류:', err);
+            return res.status(500).json({ error: '건물 목록을 가져오는데 실패했습니다.' });
+        }
+        // 디버깅을 위한 로그
+        console.log('조회된 건물 목록:', results);
+
+        res.json(results);
+    });
+});
+
+// 특정 건물의 정보를 가져오는 API
+app.get('/api/buildings/:id', (req, res) => {
+    const buildingId = req.params.id;
+    
+    const query = 'SELECT building_id, name, basement_floors, ground_floors FROM buildings WHERE building_id = ?';
+    
+    db.query(query, [buildingId], (err, results) => {
+        if (err) {
+            console.error('건물 정보 조회 오류:', err);
+            return res.status(500).json({ error: '건물 정보를 가져오는데 실패했습니다.' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ error: '해당 건물을 찾을 수 없습니다.' });
+        }
+
+        console.log('건물 정보:', results[0]); // 디버깅용
+        res.json(results[0]);
+    });
+});
+
+// 특정 건물의 특정 층 호실 목록을 가져오는 API
+app.get('/api/rooms/:buildingId/:floor', (req, res) => {
+    const { buildingId, floor } = req.params;
+    
+    console.log('요청 받은 건물:', buildingId); // 디버깅
+    console.log('요청 받은 층:', floor); // 디버깅
+    
+    let floorPattern;
+    if (floor.startsWith('-')) {
+        // 지하층인 경우 (예: -1은 B1)
+        floorPattern = `B${Math.abs(floor)}%`;
+    } else {
+        // 지상층인 경우
+        floorPattern = `${floor}%`;
+    }
+    
+    const query = `
+        SELECT * FROM rooms 
+        WHERE building_id = ? 
+        AND room_number LIKE ?
+        ORDER BY room_number
+    `;
+    
+    console.log('실행될 쿼리:', query); // 디버깅
+    console.log('쿼리 파라미터:', [buildingId, floorPattern]); // 디버깅
+    
+    db.query(query, [buildingId, floorPattern], (err, results) => {
+        if (err) {
+            console.error('호실 목록 조회 오류:', err);
+            return res.status(500).json({ error: '호실 목록을 가져오는데 실패했습니다.' });
+        }
+        
+        console.log('조회된 호실:', results); // 디버깅
+        res.json(results);
+    });
+});
+
+// 공간 예약 API 엔드포인트 추가
+app.post('/api/room-reservations', authenticateUser, (req, res) => {
+    const { roomId, date, startTime, endTime } = req.body;
+    const hostId = req.session.studentId; // 세션에서 학번 가져오기
+
+    // 예약 중복 체크 쿼리
+    const checkQuery = `
+        SELECT * FROM room_reservations 
+        WHERE room_id = ? 
+        AND reservation_date = ? 
+        AND ((start_time <= ? AND end_time > ?) 
+        OR (start_time < ? AND end_time >= ?)
+        OR (start_time >= ? AND end_time <= ?))
+    `;
+
+    db.query(checkQuery, 
+        [roomId, date, endTime, startTime, endTime, startTime, startTime, endTime], 
+        (err, results) => {
+            if (err) {
+                console.error('예약 중복 체크 오류:', err);
+                return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+            }
+
+            if (results.length > 0) {
+                return res.status(400).json({ error: '해당 시간에 이미 예약이 존재합니다.' });
+            }
+
+            // 새로운 예약 추가
+            const insertQuery = `
+                INSERT INTO room_reservations 
+                (room_id, host_id, reservation_date, start_time, end_time) 
+                VALUES (?, ?, ?, ?, ?)
+            `;
+
+            db.query(insertQuery, 
+                [roomId, hostId, date, startTime, endTime], 
+                (err, result) => {
+                    if (err) {
+                        console.error('예약 추가 오류:', err);
+                        return res.status(500).json({ error: '예약 처리 중 오류가 발생했습니다.' });
+                    }
+
+                    res.json({ 
+                        success: true, 
+                        message: '예약이 완료되었습니다.',
+                        reservationId: result.insertId 
+                    });
+                }
+            );
+        }
+    );
+});
+
 // 로그아웃 라우트 추가
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {
