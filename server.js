@@ -331,57 +331,97 @@ app.get('/api/rooms/:buildingId/:floor', (req, res) => {
     });
 });
 
-// 공간 예약 API 엔드포인트 추가
+// 공간 예약 API 엔드포인트
 app.post('/api/room-reservations', authenticateUser, (req, res) => {
     const { roomId, date, startTime, endTime } = req.body;
-    const hostId = req.session.studentId; // 세션에서 학번 가져오기
+    const hostId = req.session.studentId;
 
-    // 예약 중복 체크 쿼리
-    const checkQuery = `
-        SELECT * FROM room_reservations 
-        WHERE room_id = ? 
-        AND reservation_date = ? 
-        AND ((start_time <= ? AND end_time > ?) 
-        OR (start_time < ? AND end_time >= ?)
-        OR (start_time >= ? AND end_time <= ?))
-    `;
+    // 트랜잭션 시작
+    db.beginTransaction(err => {
+        if (err) {
+            console.error('트랜잭션 시작 오류:', err);
+            return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
 
-    db.query(checkQuery, 
-        [roomId, date, endTime, startTime, endTime, startTime, startTime, endTime], 
-        (err, results) => {
-            if (err) {
-                console.error('예약 중복 체크 오류:', err);
-                return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
-            }
+        // 1. 예약 중복 체크
+        const checkQuery = `
+            SELECT * FROM room_reservations 
+            WHERE room_id = ? 
+            AND reservation_date = ? 
+            AND ((start_time <= ? AND end_time > ?) 
+            OR (start_time < ? AND end_time >= ?)
+            OR (start_time >= ? AND end_time <= ?))
+        `;
 
-            if (results.length > 0) {
-                return res.status(400).json({ error: '해당 시간에 이미 예약이 존재합니다.' });
-            }
-
-            // 새로운 예약 추가
-            const insertQuery = `
-                INSERT INTO room_reservations 
-                (room_id, host_id, reservation_date, start_time, end_time) 
-                VALUES (?, ?, ?, ?, ?)
-            `;
-
-            db.query(insertQuery, 
-                [roomId, hostId, date, startTime, endTime], 
-                (err, result) => {
-                    if (err) {
-                        console.error('예약 추가 오류:', err);
-                        return res.status(500).json({ error: '예약 처리 중 오류가 발생했습니다.' });
-                    }
-
-                    res.json({ 
-                        success: true, 
-                        message: '예약이 완료되었습니다.',
-                        reservationId: result.insertId 
+        db.query(checkQuery, 
+            [roomId, date, endTime, startTime, endTime, startTime, startTime, endTime], 
+            (err, results) => {
+                if (err) {
+                    return db.rollback(() => {
+                        console.error('예약 중복 체크 오류:', err);
+                        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
                     });
                 }
-            );
-        }
-    );
+
+                if (results.length > 0) {
+                    return db.rollback(() => {
+                        res.status(400).json({ error: '해당 시간에 이미 예약이 존재합니다.' });
+                    });
+                }
+
+                // 2. 예약 정보 저장
+                const insertQuery = `
+                    INSERT INTO room_reservations 
+                    (room_id, host_id, reservation_date, start_time, end_time) 
+                    VALUES (?, ?, ?, ?, ?)
+                `;
+
+                db.query(insertQuery, 
+                    [roomId, hostId, date, startTime, endTime], 
+                    (err, result) => {
+                        if (err) {
+                            return db.rollback(() => {
+                                console.error('예약 추가 오류:', err);
+                                res.status(500).json({ error: '예약 처리 중 오류가 발생했습니다.' });
+                            });
+                        }
+
+                        // 3. room 상태 업데이트
+                        const updateRoomQuery = `
+                            UPDATE rooms 
+                            SET status = 'occupied' 
+                            WHERE room_id = ?
+                        `;
+
+                        db.query(updateRoomQuery, [roomId], (err, updateResult) => {
+                            if (err) {
+                                return db.rollback(() => {
+                                    console.error('룸 상태 업데이트 오류:', err);
+                                    res.status(500).json({ error: '예약 처리 중 오류가 발생했습니다.' });
+                                });
+                            }
+
+                            // 트랜잭션 커밋
+                            db.commit(err => {
+                                if (err) {
+                                    return db.rollback(() => {
+                                        console.error('커밋 오류:', err);
+                                        res.status(500).json({ error: '예약 처리 중 오류가 발생했습니다.' });
+                                    });
+                                }
+
+                                res.json({ 
+                                    success: true, 
+                                    message: '예약이 완료되었습니다.',
+                                    reservationId: result.insertId 
+                                });
+                            });
+                        });
+                    }
+                );
+            }
+        );
+    });
 });
 
 // 로그아웃 라우트 추가
