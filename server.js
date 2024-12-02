@@ -424,6 +424,83 @@ app.post('/api/room-reservations', authenticateUser, (req, res) => {
     });
 });
 
+// 특정 방의 좌석 정보를 가져오는 API
+app.get('/api/seats/:roomId', (req, res) => {
+    const roomId = req.params.roomId;
+    
+    const query = 'SELECT seat_id, row_num, col_num, status FROM seats WHERE room_id = ?';
+    
+    // pool 대신 db 사용
+    db.query(query, [roomId], (err, results) => {
+        if (err) {
+            console.error('좌석 정보 조회 오류:', err);
+            return res.status(500).json({ error: '좌석 정보를 가져오는데 실패했습니다.' });
+        }
+        
+        // 디버깅을 위한 로그
+        console.log('조회된 좌석 데이터:', results);
+        
+        // 결과가 없는 경우 빈 배열 반환
+        if (!results || results.length === 0) {
+            return res.json([]);
+        }
+        
+        res.json(results);
+    });
+});
+
+// 좌석 예약 API
+app.post('/api/seat-reservations', (req, res) => {  // async 제거
+    const { seatId, roomId, date, startTime, endTime } = req.body;
+    const studentId = req.session.studentId; // 세션에서 학번 가져오기
+
+    if (!studentId) {
+        return res.status(401).json({ error: '로그인이 필요합니다.' });
+    }
+
+    // 중복 예약 확인 쿼리
+    const checkQuery = `
+        SELECT COUNT(*) as count 
+        FROM seat_reservations 
+        WHERE seat_id = ? 
+        AND reservation_date = ? 
+        AND ((start_time < ? AND end_time > ?) 
+        OR (start_time < ? AND end_time > ?))
+        AND status = 'confirmed'
+    `;
+
+    db.query(checkQuery, [seatId, date, endTime, startTime, endTime, startTime], (err, results) => {
+        if (err) {
+            console.error('예약 확인 중 오류:', err);
+            return res.status(500).json({ error: '예약 확인 중 오류가 발생했습니다.' });
+        }
+
+        if (results[0].count > 0) {
+            return res.status(400).json({ error: '이미 예약된 시간입니다.' });
+        }
+
+        // 예약 정보 저장
+        const insertQuery = `
+            INSERT INTO seat_reservations 
+            (seat_id, student_id, room_id, reservation_date, start_time, end_time) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(insertQuery, [seatId, studentId, roomId, date, startTime, endTime], (err, result) => {
+            if (err) {
+                console.error('예약 저장 오류:', err);
+                return res.status(500).json({ error: '예약 저장 중 오류가 발생했습니다.' });
+            }
+
+            res.json({ 
+                success: true, 
+                message: '예약이 완료되었습니다.',
+                reservationId: result.insertId 
+            });
+        });
+    });
+});
+
 // 로그아웃 라우트 추가
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {

@@ -138,6 +138,22 @@ CREATE TABLE room_reservations (
     FOREIGN KEY (room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (host_id) REFERENCES users(student_id)
 );
+-- 좌석 예약 테이블
+CREATE TABLE seat_reservations (
+    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    seat_id INT NOT NULL,
+    student_id VARCHAR(50) NOT NULL,  
+    room_id INT NOT NULL,
+    reservation_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status VARCHAR(20) DEFAULT 'confirmed',  -- confirmed, cancelled, completed
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (seat_id) REFERENCES seats(seat_id),
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id),
+    FOREIGN KEY (student_id) REFERENCES users(student_id)
+);
 ```
 
 ## 3. MySQL 사용자 인증 방식 변경
