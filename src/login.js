@@ -11,11 +11,16 @@ function showSignupForm() {
     document.getElementById('signupContent').style.display = 'block';
 }
 
-// 로그인 처리 함수
 async function handleLogin(event) {
     event.preventDefault();
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
+
+    // 입력값 검증
+    if (!studentId || !password) {
+        alert('학번과 비밀번호를 모두 입력해주세요.');
+        return;
+    }
     
     try {
         const response = await fetch('/login', {
@@ -23,18 +28,23 @@ async function handleLogin(event) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ studentId, password }),
-            credentials: 'include'
+            body: JSON.stringify({
+                studentId,
+                password
+            })
         });
 
         const data = await response.json();
-        
-        if (response.ok) {
-            sessionStorage.setItem('userId', data.user.id);
-            sessionStorage.setItem('studentId', data.user.username);
-            window.location.href = '/main';
+        if (!response.ok) {
+            throw new Error(data.error || '로그인 실패');
+        }
+        if (data.success) {
+            // 로그인 성공 시 학번을 sessionStorage에 저장
+            sessionStorage.setItem('studentId', studentId);
+            // 로그인 성공 시 메인 페이지로 리다이렉트
+            window.location.href = data.redirect || '/main.html';
         } else {
-            alert(data.error || '로그인에 실패했습니다.');
+            alert('로그인에 실패했습니다. 학번과 비밀번호를 확인해주세요.');
         }
     } catch (error) {
         console.error('로그인 오류:', error);

@@ -110,8 +110,8 @@ footer {
 /* User Info 스타일 */
 .user-info {
     position: fixed;
-    bottom: 60px;
-    left: 20px;
+    top: 20px;  /* 하단에서 20px 떨어짐 */
+    right: 20px;   /* 우측에서 20px 떨어짐 */
     background-color: rgba(255, 255, 255, 0.9);
     padding: 10px 20px;
     border-radius: 5px;

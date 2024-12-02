@@ -1,8 +1,13 @@
 // 사용자 정보 표시 함수
 function displayUserInfo() {
     const studentId = sessionStorage.getItem('studentId');
+    console.log('표시할 학번:', studentId); // 디버깅용
+    
     if (studentId) {
         document.getElementById('currentUser').textContent = studentId;
+    } else {
+        document.getElementById('currentUser').textContent = '로그인이 필요합니다';
+        window.location.href = '/login';
     }
 }
 
