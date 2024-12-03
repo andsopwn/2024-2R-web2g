@@ -98,13 +98,12 @@ select, input {
 }
 
 footer {
-    height: 8vh;
-    background-color: #862633;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1.0em;
+    width: 100%;
+    text-align: center;
+    background-color: #8B0000;
+    color: white;
+    padding: 10px 0;
+    margin-top: auto;  /* footer를 최하단으로 밀어내기 */
 }
 
 /* User Info 스타일 */

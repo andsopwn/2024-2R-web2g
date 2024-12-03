@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,23 +7,36 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section>
-        <h2>My Reservations</h2>
-        <ul id="reservationList">
-            <!-- 예약 내역이 동적으로 추가될 영역 -->
-        </ul>
-        <button onclick="location.href='main.html'">Back</button>
+    <header>
+        <h1 class="title">My Reservations</h1>
+    </header>
+
+    <section class="my-reservations">
+        <div class="reservation-list">
+            <h2>좌석 예약 내역</h2>
+            <ul id="seatReservationList">
+                <!-- 좌석 예약 내역이 동적으로 추가될 영역 -->
+            </ul>
+        </div>
+        <div class="reservation-list">
+            <h2>공간 예약 내역</h2>
+            <ul id="spaceReservationList">
+                <!-- 공간 예약 내역이 동적으로 추가될 영역 -->
+            </ul>
+        </div>
     </section>
+
     <div class="user-info">
         <p>학번: <span id="currentUser">로딩중...</span></p>
         <button onclick="handleLogout()" class="btn-logout">로그아웃</button>
     </div>
-
+    <button onclick="location.href='main.html'" class="back-button">Back</button>
+    
     <footer>
         <p>© 2024 고려대학교 사이버보안학과 2024-2R 웹프로그래밍 무엇을도와드릴까요.</p>
     </footer>
 
-    <script src="script.js"></script>
     <script src="session.js"></script>
+    <script src="rev.js"></script>
 </body>
 </html>
