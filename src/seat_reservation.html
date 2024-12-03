@@ -14,32 +14,7 @@
     <div class="reservation-container seat-reservation">
         <div class="content">
             <h2>좌석 예약</h2>
-            <div class="selection-area">
-                <div class="selection-group">
-                    <label for="building">건물:</label>
-                    <select id="building">
-                        <option value="">건물을 선택하세요</option>
-                        <!-- 건물 목록은 JavaScript로 동적 생성됨 -->
-                    </select>
-                </div>
-                <div class="selection-group">
-                    <label for="floor">층:</label>
-                    <select id="floor">
-                        <option value="">층을 선택하세요</option>
-                    </select>
-                </div>
-                <div class="selection-group">
-                    <label for="room">호실:</label>
-                    <select id="room">
-                        <option value="">호실을 선택하세요</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- 좌석 정보가 표시될 영역 -->
-            <div id="seatGrid" class="seat-grid"></div>
-
-            <<div class="time-selection">
+            <div class="time-selection">
                 <label for="date">날짜:</label>
                 <input type="date" id="date" required>
                 
@@ -73,9 +48,36 @@
                     <option value="19:00">19:00</option>
                 </select>
             </div>
+            
+            <div class="selection-area">
+                <div class="selection-group">
+                    <label for="building">건물:</label>
+                    <select id="building">
+                        <option value="">건물을 선택하세요</option>
+                        <!-- 건물 목록은 JavaScript로 동적 생성됨 -->
+                    </select>
+                </div>
+                <div class="selection-group">
+                    <label for="floor">층:</label>
+                    <select id="floor">
+                        <option value="">층을 선택하세요</option>
+                    </select>
+                </div>
+                <div class="selection-group">
+                    <label for="room">호실:</label>
+                    <select id="room">
+                        <option value="">호실을 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 좌석 정보가 표시될 영역 -->
+            <div id="seatGrid" class="seat-grid"></div>
+
+            
 
             <div class="button-group">
-                <button class="btn-primary" onclick="reserveSeats()">예약하기</button>
+                <button class="btn-primary" onclick="reserveSeat()">예약하기</button>
                 <button class="btn-primary" onclick="location.href='main.html'">돌아가기</button>
             </div>
         </div>
