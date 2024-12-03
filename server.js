@@ -400,153 +400,119 @@ app.post('/api/reserve-space', (req, res) => {
     });
 });
 
-// 좌석 목록 조회 API
+// 호실 조회
+app.get('/api/rooms', async (req, res) => {
+    try {
+      // prisma를 사용하지 않고 직접 mysql 쿼리 사용
+      const query = 'SELECT room_id, building_id, room_number FROM rooms ORDER BY room_number ASC';
+      
+      db.query(query, (err, results) => {
+        if (err) {
+          console.error('방 조회 중 오류 발생:', err);
+          return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
+        res.json(results);
+      });
+    } catch (error) {
+      console.error('방 조회 중 오류 발생:', error);
+      res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    }
+});
+
+// 특정 방의 좌석 정보를 가져오는 API
 app.get('/api/seats/:roomId', async (req, res) => {
     try {
-        const { roomId } = req.params;
-        const { date, startTime, endTime } = req.query;
+      const { roomId } = req.params;
+      console.log('요청된 roomId:', roomId); // roomId 확인
 
-        console.log('받은 요청:', { roomId, date, startTime, endTime });
-
-        // 1. 먼저 room 정보 조회
-        const roomQuery = `
-            SELECT r.*, b.name as building_name 
-            FROM rooms r 
-            JOIN buildings b ON r.building_id = b.building_id 
-            WHERE r.room_id = ?
-        `;
-
-        db.query(roomQuery, [roomId], (err, roomResults) => {
-            if (err) {
-                console.error('방 정보 조회 오류:', err);
-                return res.status(500).json({ 
-                    success: false, 
-                    message: '방 정보 조회 실패' 
-                });
-            }
-
-            if (roomResults.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: '해당 방을 찾을 수 없습니다.'
-                });
-            }
-
-            const room = roomResults[0];
-
-            // 2. 좌석 정보와 예약 정보 조회
-            const seatsQuery = `
-                SELECT 
-                    s.seat_id,
-                    s.row_num,
-                    s.col_num,
-                    s.status,
-                    CASE WHEN sr.reservation_id IS NOT NULL THEN TRUE ELSE FALSE END as is_reserved
-                FROM 
-                    seats s
-                    LEFT JOIN seat_reservations sr ON s.seat_id = sr.seat_id
-                    AND sr.reservation_date = ?
-                    AND sr.status != '예약불가'
-                    AND (
-                        (sr.start_time <= ? AND sr.end_time > ?)
-                        OR (sr.start_time < ? AND sr.end_time >= ?)
-                        OR (sr.start_time >= ? AND sr.start_time < ?)
-                    )
-                WHERE 
-                    s.room_id = ?
-                ORDER BY 
-                    s.row_num, s.col_num
-            `;
-
-            const seatsValues = [
-                date, 
-                endTime, startTime,
-                endTime, endTime,
-                startTime, endTime,
-                roomId
-            ];
-
-            db.query(seatsQuery, seatsValues, (err, seatsResults) => {
-                if (err) {
-                    console.error('좌석 조회 오류:', err);
-                    return res.status(500).json({ 
-                        success: false, 
-                        message: '좌석 정보 조회 실패' 
-                    });
-                }
-
-                // 좌석 정보를 2차원 배열로 변환
-                const maxRow = Math.max(...seatsResults.map(seat => seat.row_num));
-                const maxCol = Math.max(...seatsResults.map(seat => seat.col_num));
-
-                res.json({
-                    success: true,
-                    room: {
-                        ...room,
-                        maxRow,
-                        maxCol
-                    },
-                    seats: seatsResults
-                });
-            });
-        });
+      const query = `
+        SELECT 
+          s.seat_id,
+          s.row_num,
+          s.col_num,
+          CASE 
+            WHEN sr.reservation_id IS NOT NULL THEN TRUE 
+            ELSE FALSE 
+          END as is_reserved
+        FROM 
+          seats s
+        LEFT JOIN 
+          seat_reservations sr ON s.seat_id = sr.seat_id
+        WHERE 
+          s.room_id = ?
+        ORDER BY 
+          s.row_num, s.col_num
+      `;
+      
+      db.query(query, [roomId], (err, results) => {
+        if (err) {
+          console.error('좌석 조회 중 오류 발생:', err);
+          return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        }
+        console.log('쿼리 결과:', results); // 쿼리 결과 확인
+        
+        if (results.length === 0) {
+          console.log('해당 방의 좌석이 없습니다.');
+        }
+        
+        res.json(results);
+      });
 
     } catch (error) {
-        console.error('서버 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '서버 오류가 발생했습니다.',
-            error: error.message
-        });
+      console.error('좌석 조회 중 오류 발생:', error);
+      res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
 });
 
 // 좌석 예약 API
-app.post('/api/reserve-seat', (req, res) => {
-    console.log('좌석 예약 요청 데이터:', req.body);
-    
-    const { student_id, reservation_date, start_time, end_time, seat_id, status } = req.body;
+app.post('/api/seat-reservations', (req, res) => {
+    const { seatId, date, startTime, endTime, status } = req.body;
+    const studentId = req.session.studentId;
 
-    // 입력값 검증
-    if (!student_id || !reservation_date || !start_time || !end_time || !seat_id) {
-        return res.status(400).json({ 
-            success: false, 
-            message: '필수 입력값이 누락되었습니다.' 
-        });
+    console.log('예약 요청 데이터:', { seatId, date, startTime, endTime, status, studentId });
+
+    if (!studentId) {
+        return res.status(401).json({ error: '로그인이 필요합니다.' });
     }
 
-    const query = `
-        INSERT INTO seat_reservations 
-        (student_id, reservation_date, start_time, end_time, seat_id, status) 
-        VALUES (?, ?, ?, ?, ?, ?)
+    const checkQuery = `
+        SELECT COUNT(*) as count 
+        FROM seat_reservations 
+        WHERE seat_id = ? 
+        AND reservation_date = ? 
+        AND ((start_time < ? AND end_time > ?) 
+        OR (start_time < ? AND end_time > ?))
+        AND status = 'unavailable'
     `;
 
-    const values = [
-        student_id,
-        reservation_date,
-        start_time,
-        end_time,
-        seat_id,
-        status || '예약불가'
-    ];
-
-    console.log('실행할 쿼리:', query);
-    console.log('쿼리 파라미터:', values);
-
-    db.query(query, values, (err, result) => {
+    db.query(checkQuery, [seatId, date, endTime, startTime, endTime, startTime], (err, results) => {
         if (err) {
-            console.error('좌석 예약 저장 오류:', err);
-            return res.status(500).json({ 
-                success: false, 
-                message: '좌석 예약 처리 중 오류가 발생했습니다.',
-                error: err.message
-            });
+            console.error('예약 확인 중 오류:', err);
+            return res.status(500).json({ error: '예약 확인 중 오류가 발생했습니다.' });
         }
 
-        res.json({ 
-            success: true, 
-            message: '좌석 예약이 완료되었습니다.',
-            reservationId: result.insertId 
+        if (results[0].count > 0) {
+            return res.status(400).json({ error: '이미 예약된 시간입니다.' });
+        }
+
+        const insertQuery = `
+            INSERT INTO seat_reservations 
+            (seat_id, student_id, reservation_date, start_time, end_time, status) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(insertQuery, [seatId, studentId, date, startTime, endTime, status], (err, result) => {
+            if (err) {
+                console.error('예약 저장 오류:', err);
+                return res.status(500).json({ error: '예약 저장 중 오류가 발생했습니다.' });
+            }
+
+            console.log('예약 저장 성공:', result);
+            res.json({ 
+                success: true, 
+                message: '예약이 완료되었습니다.',
+                reservationId: result.insertId 
+            });
         });
     });
 });
