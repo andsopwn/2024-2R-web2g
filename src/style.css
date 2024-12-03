@@ -6,6 +6,7 @@
 }
 
 body {
+    
     font-family: Arial, sans-serif;
     background-color: #000;
     color: #fff;
@@ -201,4 +202,27 @@ select option:disabled {
 
 .seat.empty {
     visibility: hidden;  /* 빈 좌석은 숨김 처리 */
+}
+
+.my-reservations {
+    padding-top: 100px; /* 헤더 높이만큼 상단 여백 추가 */
+    padding: 100px 20px 20px 20px; /* 상단 여백 + 좌우 여백 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reservation-list {
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 800px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.reservation-list h2 {
+    margin-bottom: 10px;
+    color: #ffffff;
+    text-align: center;
 }
