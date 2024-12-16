@@ -7,7 +7,18 @@
 <body>
     <header>
         <h1>Campus Reservation</h1>
+        <button class="menu-button">☰</button>
     </header>
+
+    <div class="side-menu">
+        <button class="close-menu">&times;</button>
+        <ul>
+            <li><a href="#">홈</a></li>
+            <li><a href="#">예약 현황</a></li>
+            <li><a href="#">마이페이지</a></li>
+            <li><a href="#">로그아웃</a></li>
+        </ul>
+    </div>
 
     <section class="main-page">
         <div class="content">
@@ -33,7 +44,7 @@
                             <rect class="building" x="340" y="500" width="170" height="60" onclick="showBuilding('Box 3')" />
                             <text x="440" y="530" class="building-label" fill="white">농심국제관</text>
 
-                            <rect class="building" x="875" y="640" width="50" height="30"/>
+                            
                             <text x="895" y="660" class="building-label" fill="white">정문</text>
 
 
@@ -118,6 +129,32 @@
         });
         event.target.classList.add('active');
     }
+    function initializeMenu() {
+    const menuBtn = document.querySelector('.menu-button');
+    const closeBtn = document.querySelector('.close-menu');
+    const sideMenu = document.querySelector('.side-menu');
+    const mainPage = document.querySelector('.main-page'); // 메인 페이지 요소 추가
+
+    function openMenu() {
+        sideMenu.classList.add('active');
+    }
+
+    function closeMenu() {
+        sideMenu.classList.remove('active');
+    }
+
+    menuBtn.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    
+    // 메인 페이지 클릭 시 메뉴 닫기
+    mainPage.addEventListener('click', function(event) {
+        if (sideMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeMenu);
     </script>
 </body>
 </html>

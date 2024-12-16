@@ -10,7 +10,7 @@ body {
     color: #fff;
     overflow-x: hidden;
 }
-
+/*
 header {
     position: fixed;
     width: 100%;
@@ -18,8 +18,37 @@ header {
     background: rgba(0, 0, 0, 0.8);
     z-index: 1000;
 }
+*/
+
+
+header {
+    position: fixed;
+    width: 100%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    display: flex;  /* 추가 */
+    align-items: center;  /* 추가 */
+    justify-content: center;  /* 추가 */
+}
+
+.menu-button {
+    position: absolute;
+    left: 20px;  /* right를 left로 변경 */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-button:hover {
+    opacity: 0.8;
+}
 
 header h1 {
+
     color: #ffffff;
     text-align: center;
     font-size: 2em;
@@ -33,7 +62,50 @@ header h1 {
     align-items: center;
     justify-content: center;
 }
+.side-menu {
+    position: fixed;
+    left: -300px;
+    top: 0;
+    width: 300px;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1002;
+    padding-top: 80px;
+    transition: left 0.3s ease;
+}
 
+.side-menu.active {
+    left: 0;
+}
+
+.side-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.side-menu li {
+    padding: 15px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.side-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    display: block;
+}
+
+.close-menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
 .content {
     gap: 40px;
     width : 80%;
