@@ -1,3 +1,4 @@
+/* main.css */
 * {
     margin: 0;
     padding: 0;
@@ -10,16 +11,6 @@ body {
     color: #fff;
     overflow-x: hidden;
 }
-/*
-header {
-    position: fixed;
-    width: 100%;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-}
-*/
-
 
 header {
     position: fixed;
@@ -27,14 +18,14 @@ header {
     padding: 20px;
     background: rgba(0, 0, 0, 0.8);
     z-index: 1000;
-    display: flex;  /* 추가 */
-    align-items: center;  /* 추가 */
-    justify-content: center;  /* 추가 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .menu-button {
     position: absolute;
-    left: 20px;  /* right를 left로 변경 */
+    left: 20px;
     background: none;
     border: none;
     color: white;
@@ -48,7 +39,6 @@ header {
 }
 
 header h1 {
-
     color: #ffffff;
     text-align: center;
     font-size: 2em;
@@ -62,6 +52,7 @@ header h1 {
     align-items: center;
     justify-content: center;
 }
+
 .side-menu {
     position: fixed;
     left: -300px;
@@ -106,9 +97,10 @@ header h1 {
     border: none;
     background: none;
 }
+
 .content {
     gap: 40px;
-    width : 80%;
+    width: 80%;
     margin: 0 auto;
     padding: 20px;
     background-color: rgba(0, 0, 0, 0.2);
@@ -128,7 +120,6 @@ header h1 {
     padding: 10px;
     background-color: red;
     align-items: center;
-    
 }
 
 #map {
@@ -164,7 +155,6 @@ header h1 {
     cursor: pointer;
     transition: fill 0.3s ease;
 }
-
 
 .building:hover {
     fill: #b0b0b0;
@@ -215,30 +205,56 @@ header h1 {
 
 .campus-btn.active {
     background-color: #862633;
-} 
-/*
-.map-container {
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
-    margin: auto;
-}
-.map-image {
-    width: 100%;
-    height: auto;
-}
-.building {
-    fill: rgba(255, 255, 255, 0.7);
-    stroke: #000;
-    stroke-width: 1;
-    cursor: pointer;
-}
-.building:hover {
-    fill: #ffcc00;
-}
-.building-label {
-    font-size: 14px;
-    text-anchor: middle;
-    fill: #333;
 }
 
+.building-sidebar {
+    position: fixed;
+    right: -300px;
+    top: 0;
+    width: 300px;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1003; /* z-index 증가 */
+    padding-top: 80px;
+    padding-left: 20px; /* 좌우 패딩 추가 */
+    padding-right: 20px; /* 좌우 패딩 추가 */
+    padding-top: 80px;
+    transition: right 0.3s ease;
+}
+
+.building-sidebar.active {
+    right: 0;
+}
+
+.close-building-sidebar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.building-info {
+    color: white;
+    margin-bottom: 30px;
+}
+
+.reservation-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 추가: footer 스타일 
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    z-index: 999;
+}

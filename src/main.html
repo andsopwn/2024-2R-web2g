@@ -1,3 +1,4 @@
+<!-- main.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,14 +11,25 @@
         <button class="menu-button">☰</button>
     </header>
 
+    <!-- 사이드 메뉴 -->
     <div class="side-menu">
         <button class="close-menu">&times;</button>
         <ul>
-            <li><a href="#">홈</a></li>
             <li><a href="#">예약 현황</a></li>
-            <li><a href="#">마이페이지</a></li>
             <li><a href="#">로그아웃</a></li>
         </ul>
+    </div>
+
+    <!-- 건물 사이드바 -->
+    <div class="building-sidebar">
+        <button class="close-building-sidebar">&times;</button>
+        <div class="building-info">
+            <h2 id="selected-building-name"></h2>
+        </div>
+        <div class="reservation-buttons">
+            <button class="btn-primary" onclick="handleSpaceReservation()">공간 예약</button>
+            <button class="btn-primary" onclick="handleSeatReservation()">좌석 예약</button>
+        </div>
     </div>
 
     <section class="main-page">
@@ -29,75 +41,70 @@
                 <button class="campus-btn" onclick="switchCampus('shared')">세종공동캠퍼스</button>
             </div>
             <br>
-                <div class="map-container">
+            <div class="map-container">
                 <div id="map">
-                    <!-- 과학기술1관 -->
-                        <svg id="sejong-map" viewBox="0 0 1300 700" class="map-image">
-
-                            <!--layer1-->
-                            <rect class="building" x="10" y="500" width="150" height="60" onclick="showBuilding('Box 1')" />
-                            <text x="80" y="530" class="building-label" fill="white">가속기 ICT 융합관</text>
+                    <!-- 세종캠퍼스 맵 -->
+                    <svg id="sejong-map" viewBox="0 0 1300 700" class="map-image">
+                        <!-- 건물 및 도로 SVG 요소들 -->
+                        <rect class="building" x="10" y="500" width="150" height="60" onclick="showBuilding(event, '가속기 ICT 융합관')" />
+                        <text x="85" y="530" class="building-label">가속기 ICT 융합관</text>
                         
-                            <rect class="building" x="175" y="500" width="150" height="60" onclick="showBuilding('Box 2')" />
-                            <text x="255" y="530" class="building-label" fill="white">산학협력관</text>
+                        <rect class="building" x="175" y="500" width="150" height="60" onclick="showBuilding(event, '산학협력관')" />
+                        <text x="250" y="530" class="building-label">산학협력관</text>
                         
-                            <rect class="building" x="340" y="500" width="170" height="60" onclick="showBuilding('Box 3')" />
-                            <text x="440" y="530" class="building-label" fill="white">농심국제관</text>
+                        <rect class="building" x="340" y="500" width="170" height="60" onclick="showBuilding(event, '농심국제관')" />
+                        <text x="425" y="530" class="building-label">농심국제관</text>
 
-                            
-                            <text x="895" y="660" class="building-label" fill="white">정문</text>
+                        <text x="895" y="660" class="building-label">정문</text>
 
+                        <!-- 도로 -->
+                        <rect class="road" x="0" y="430" width="1200" height="30"/>
+                        <rect class="road" x="530" y="200" width="10" height="400"/>
+                        <rect class="road" x="880" y="430" width="40" height="210"/>
 
-                            <!--도로1-->
-                            <rect class="road" x="0" y="430" width="1200" height="30"/>
-                            <rect class="road" x="530" y="200" width="10" height="400"/>
-                            
-                            <rect class="road" x="880" y="430" width="40" height="210"/>
-
-                            <!--layer2-->
-
-                            <rect class="building" x="0" y="330" width="70" height="90" onclick="showBuilding('Box 4')" />
-                            <text x="25" y="380" class="building-label" fill="white">약학 대학</text>
+                        <!-- 추가 건물 -->
+                        <rect class="building" x="0" y="330" width="70" height="90" onclick="showBuilding(event, '약학 대학')" />
+                        <text x="35" y="380" class="building-label">약학 대학</text>
                         
-                            <rect class="building" x="100" y="330" width="150" height="70" onclick="showBuilding('Box 5')" />
-                            <text x="170" y="370" class="building-label" fill="white">과학기술 1관</text>
+                        <rect class="building" x="100" y="330" width="150" height="70" onclick="showBuilding(event, '과학기술 1관')" />
+                        <text x="175" y="370" class="building-label">과학기술 1관</text>
 
-                            <rect class="building" x="550" y="330" width="170" height="50" onclick="showBuilding('Box 6')" />
-                            <text x="610" y="360" class="building-label" fill="white">학술 정보원</text>
+                        <rect class="building" x="550" y="330" width="170" height="50" onclick="showBuilding(event, '학술 정보원')" />
+                        <text x="635" y="360" class="building-label">학술 정보원</text>
 
-                            <!--도로-->
-                            <rect class="road" x="110" y="250" width="1300" height="40"/>
+                        <rect class="road" x="110" y="250" width="1300" height="40"/>
 
-                            <!--layer3-->
+                        <rect class="building" x="570" y="180" width="130" height="50" onclick="showBuilding(event, '과학기술 2관')" />
+                        <text x="635" y="210" class="building-label">과학기술 2관</text>
                         
-                            <rect class="building" x="570" y="180" width="130" height="50" onclick="showBuilding('Box 5')" />
-                            <text x="645" y="210" class="building-label" fill="white">과학기술 2관</text>
+                        <rect class="building" x="910" y="160" width="170" height="70" onclick="showBuilding(event, '석원 경상관')" />
+                        <text x="1000" y="200" class="building-label">석원 경상관</text>
                         
-                            <rect class="building" x="910" y="160" width="170" height="70" onclick="showBuilding('Box 7')" />
-                            <text x="1000" y="200" class="building-label" fill="white">석원 경상관</text>
+                        <rect class="building" x="1100" y="180" width="130" height="50" onclick="showBuilding(event, '문스대')" />
+                        <text x="1165" y="210" class="building-label">문스대</text>
                         
-                            <rect class="building" x="1100" y="180" width="130" height="50" onclick="showBuilding('Box 8')" />
-                            <text x="1160" y="210" class="building-label" fill="white">문스대</text>
-                            
-                            <rect class="building" x="1250" y="180" width="50" height="50" onclick="showBuilding('Box 8')" />
-                            <text x="1265" y="210" class="building-label" fill="white">체육관</text>
+                        <rect class="building" x="1250" y="180" width="50" height="50" onclick="showBuilding(event, '체육관')" />
+                        <text x="1275" y="210" class="building-label">체육관</text>
 
-                            <!--layer4-->
-                            <rect class="building" x="720" y="110" width="150" height="50" onclick="showBuilding('Box 6')" />
-                            <text x="790" y="140" class="building-label" fill="white">공공정책관</text>
-                        
-                        </svg>
-                    <svg id="seoul-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
-                        <rect class="building" x="500" y="50" width="250" height="120" onclick="showBuilding('하나과학관')" />
-                        <rect class="building" x="450" y="190" width="300" height="80" onclick="showBuilding('아산과학관')" />
-                        <rect class="building" x="800" y="350" width="100" height="50" onclick="showBuilding('하나스퀘어')" />
-                        <rect class="building" x="500" y="450" width="250" height="100" onclick="showBuilding('과학도서관')" />
-                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding('생명과학관')" />
-                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding('우정정보관')" />
+                        <rect class="building" x="720" y="110" width="150" height="50" onclick="showBuilding(event, '공공정책관')" />
+                        <text x="795" y="140" class="building-label">공공정책관</text>
                     </svg>
+
+                    <!-- 서울캠퍼스 맵 (숨김) -->
+                    <svg id="seoul-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
+                        <rect class="building" x="500" y="50" width="250" height="120" onclick="showBuilding(event, '하나과학관')" />
+                        <rect class="building" x="450" y="190" width="300" height="80" onclick="showBuilding(event, '아산과학관')" />
+                        <rect class="building" x="800" y="350" width="100" height="50" onclick="showBuilding(event, '하나스퀘어')" />
+                        <rect class="building" x="500" y="450" width="250" height="100" onclick="showBuilding(event, '과학도서관')" />
+                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding(event, '생명과학관')" />
+                        <rect class="building" x="1000" y="30" width="100" height="180" onclick="showBuilding(event, '우정정보관')" />
+                    </svg>
+
+                    <!-- 세종공동캠퍼스 맵 (숨김) -->
                     <svg id="shared-map" viewBox="0 0 1200 700" class="map-image" style="display: none;">
-                        <rect class="building" x="700" y="100" width="120" height="310" onclick="showBuilding('세종공동실험실습관')" />
-                        <rect class="building" x="200" y="500" width="200" height="100" onclick="showBuilding('행정전문대학원관')" />
+                        <rect class="building" x="700" y="100" width="120" height="310" onclick="showBuilding(event, '세종공동실험실습관')" />
+                        <rect class="building" x="200" y="500" width="200" height="100" onclick="showBuilding(event, '행정전문대학원관')" />
+                        <rect class="building" x="100" y="330" width="150" height="70" onclick="showBuilding(event, '과학기술1관')" />
                     </svg>
                 </div>
                 <p>지도에서 건물을 선택하여 예약 가능 여부를 확인하세요.</p>
@@ -110,51 +117,80 @@
     </footer>
 
     <script>
-    function showBuilding(buildingName) {
-        alert(`${buildingName} 건물이 선택되었습니다. 예약 가능한 공간을 확인해보세요.`);
-    }
+        document.addEventListener('DOMContentLoaded', function() {
+            // 메뉴 사이드바 관련
+            const menuBtn = document.querySelector('.menu-button');
+            const closeMenuBtn = document.querySelector('.close-menu');
+            const sideMenu = document.querySelector('.side-menu');
+            
+            // 건물 사이드바 관련
+            const closeBuildingBtn = document.querySelector('.close-building-sidebar');
+            const buildingSidebar = document.querySelector('.building-sidebar');
 
-    function switchCampus(campus) {
-        // 모든 맵 숨기기
-        document.getElementById('sejong-map').style.display = 'none';
-        document.getElementById('seoul-map').style.display = 'none';
-        document.getElementById('shared-map').style.display = 'none';
-        
-        // 선택된 맵 보이기
-        document.getElementById(`${campus}-map`).style.display = 'block';
-        
-        // 버튼 활성화 상태 변경
-        document.querySelectorAll('.campus-btn').forEach(btn => {
-            btn.classList.remove('active');
+            menuBtn.addEventListener('click', () => {
+                sideMenu.classList.add('active');
+            });
+
+            closeMenuBtn.addEventListener('click', () => {
+                sideMenu.classList.remove('active');
+            });
+
+            closeBuildingBtn.addEventListener('click', () => {
+                buildingSidebar.classList.remove('active');
+            });
+
+            // 메인 페이지 클릭 시 모든 사이드바 닫기
+            const mainPage = document.querySelector('.main-page');
+            mainPage.addEventListener('click', function(event) {
+                sideMenu.classList.remove('active');
+                buildingSidebar.classList.remove('active');
+            });
         });
-        event.target.classList.add('active');
-    }
-    function initializeMenu() {
-    const menuBtn = document.querySelector('.menu-button');
-    const closeBtn = document.querySelector('.close-menu');
-    const sideMenu = document.querySelector('.side-menu');
-    const mainPage = document.querySelector('.main-page'); // 메인 페이지 요소 추가
 
-    function openMenu() {
-        sideMenu.classList.add('active');
-    }
+        function showBuilding(event, buildingName) {
+            // 클릭 이벤트 전파 방지
+            event.stopPropagation();
+            console.log('Building clicked:', buildingName);
+            
+            // 요소 찾기
+            const buildingSidebar = document.querySelector('.building-sidebar');
+            const selectedBuildingName = document.getElementById('selected-building-name');
+            
+            if (!buildingSidebar) {
+                console.error('Sidebar not found!');
+                return;
+            }
+            
+            if (!selectedBuildingName) {
+                console.error('Building name element not found!');
+                return;
+            }
 
-    function closeMenu() {
-        sideMenu.classList.remove('active');
-    }
-
-    menuBtn.addEventListener('click', openMenu);
-    closeBtn.addEventListener('click', closeMenu);
-    
-    // 메인 페이지 클릭 시 메뉴 닫기
-    mainPage.addEventListener('click', function(event) {
-        if (sideMenu.classList.contains('active')) {
-            closeMenu();
+            // 건물 이름 설정 및 사이드바 활성화
+            selectedBuildingName.textContent = buildingName;
+            buildingSidebar.classList.add('active');
         }
-    });
-}
 
-document.addEventListener('DOMContentLoaded', initializeMenu);
+        function handleSpaceReservation() {
+            alert('공간 예약 페이지로 이동합니다.');
+        }
+
+        function handleSeatReservation() {
+            alert('좌석 예약 페이지로 이동합니다.');
+        }
+
+        function switchCampus(campus) {
+            document.getElementById('sejong-map').style.display = 'none';
+            document.getElementById('seoul-map').style.display = 'none';
+            document.getElementById('shared-map').style.display = 'none';
+            
+            document.getElementById(`${campus}-map`).style.display = 'block';
+            
+            document.querySelectorAll('.campus-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
     </script>
 </body>
 </html>
