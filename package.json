@@ -1,0 +1,31 @@
+{
+  "name": "2024-2r-web2g",
+  "version": "1.0.0",
+  "description": "온라인 공간 및 좌석 예약 시스템",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "pwned",
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "connect-livereload": "^0.6.1",
+    "experss": "^0.0.1-security",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "livereload": "^0.9.3",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.5"
+  }
+}
