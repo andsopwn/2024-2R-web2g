@@ -59,18 +59,17 @@ CREATE TABLE seats (
     UNIQUE KEY unique_seat_position (room_id, row_num, col_num)  -- 같은 방에서 같은 위치의 좌석 중복 방지
 );
 
--- 호실 예약 테이블 (행사 주최자용)
+-- 호실 예약 테이블
 CREATE TABLE room_reservations (
     reservation_id INT PRIMARY KEY AUTO_INCREMENT,
     room_id INT NOT NULL,
-    host_id VARCHAR(10) NOT NULL,  -- student_id를 저장
+    student_id VARCHAR(10) NOT NULL,
     reservation_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-	status ENUM('예약가능', '점검중', '예약불가') DEFAULT '예약불가',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (room_id) REFERENCES rooms(room_id),
-    FOREIGN KEY (host_id) REFERENCES users(student_id)
+    FOREIGN KEY (student_id) REFERENCES users(student_id)
 );
 -- 좌석 예약 테이블
 CREATE TABLE seat_reservations (
@@ -81,7 +80,6 @@ CREATE TABLE seat_reservations (
     reservation_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-	status ENUM('예약가능', '점검중', '예약불가') DEFAULT '예약불가',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (seat_id) REFERENCES seats(seat_id),
