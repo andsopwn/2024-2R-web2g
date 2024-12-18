@@ -63,7 +63,7 @@
                 <div id="map">
                     <!-- 세종캠퍼스 맵 -->
                     <svg id="sejong-map" viewBox="0 0 1250 650" class="map-image" preserveAspectRatio="xMidYMid meet">
-                        <!-- 건물 및 도로 SVG 요소들 -->
+                        <!-- 건물 -->
                         <rect class="building" x="10" y="500" width="150" height="60" onclick="showBuilding(event, '가속기 ICT 융합관')" />
                         <text x="85" y="530" class="building-label">가속기 ICT 융합관</text>
                         
@@ -73,23 +73,17 @@
                         <rect class="building" x="340" y="500" width="170" height="60" onclick="showBuilding(event, '농심국제관')" />
                         <text x="425" y="530" class="building-label">농심국제관</text>
 
-                        <!-- 도로 -->
-                        <rect class="road" x="0" y="430" width="1200" height="30"/>
-                        <rect class="road" x="530" y="200" width="10" height="400"/>
-                        <rect class="road" x="880" y="430" width="40" height="210"/>
 
-                        <!-- 추가 건물 -->
-                        <rect class="building" x="0" y="330" width="70" height="90" onclick="showBuilding(event, '약학 대학')" />
-                        <text x="35" y="380" class="building-label">약학 대학</text>
+                        
+                        <rect class="building" x="0" y="330" width="80" height="90" onclick="showBuilding(event, '약학 대학')" />
+                        <text x="40" y="380" class="building-label">약학 대학</text>
                         
                         <rect class="building" x="100" y="330" width="150" height="70" onclick="showBuilding(event, '과학기술 1관')" />
                         <text x="175" y="370" class="building-label">과학기술 1관</text>
-
+                        
                         <rect class="building" x="550" y="330" width="170" height="50" onclick="showBuilding(event, '학술 정보원')" />
                         <text x="635" y="360" class="building-label">학술 정보원</text>
-
-                        <rect class="road" x="110" y="250" width="1300" height="40"/>
-
+                        
                         <rect class="building" x="570" y="180" width="130" height="50" onclick="showBuilding(event, '과학기술 2관')" />
                         <text x="635" y="210" class="building-label">과학기술 2관</text>
                         
@@ -99,12 +93,35 @@
                         <rect class="building" x="1100" y="180" width="130" height="50" onclick="showBuilding(event, '문스대')" />
                         <text x="1165" y="210" class="building-label">문스대</text>
                         
-                        <rect class="building" x="1250" y="180" width="50" height="50" onclick="showBuilding(event, '체육관')" />
-                        <text x="1275" y="210" class="building-label">체육관</text>
-
+                        <rect class="building" x="1250" y="180" width="60" height="50" onclick="showBuilding(event, '체육관')" />
+                        <text x="1280" y="210" class="building-label">체육관</text>
+                        
                         <rect class="building" x="720" y="110" width="150" height="50" onclick="showBuilding(event, '공공정책관')" />
                         <text x="795" y="140" class="building-label">공공정책관</text>
+                        
+                        
+
+                        <!-- 도로 -->
+                        <rect class="road" x="0" y="430" width="1200" height="30" />
+                        <rect class="road" x="530" y="200" width="10" height="400" />
+                        <rect class="road" x="880" y="430" width="40" height="210" />
+                        <rect class="road" x="110" y="250" width="1300" height="40" />
+                        <rect class="road" x="730" y="250" width="20" height="200" />
+
+
+                        <!-- 그라운드 -->
+                        <rect class="grass" x="760" y="300" width="300" height="120" />
+                        <rect class="grass" x="280" y="300" width="230" height="120" />
+                        <rect class="area" x="560" y="470" width="300" height="150" />
+                        <text x="700" y="545" class="building-label-italic">주차장</text>
+                        <rect class="area" x="100" y="50" width="400" height="180" />
+                        <text x="300" y="150" class="building-label-italic">기숙사</text>
+                        <rect class="unusable-building" x="1080" y="300" width="70" height="120" />
+                        <text x="1115" y="350" class="building-label-italic">학술</text>
+                        <text x="1115" y="370" class="building-label-italic">회관</text>
+  
                     </svg>
+                    
 
                     <!-- 서울캠퍼스 맵 (숨김) -->
                     <svg id="seoul-map" viewBox="0 0 1300 700" class="map-image" style="display: none;">
@@ -174,6 +191,18 @@
                         <text x="800" y="590" class="building-label2">제2공학관</text>
                         <rect class="building" x="1000", y="520", width="60", height="100" onclick="showBuilding(event, '이학관')" />
                         <text x="1030" y="570" class="building-label2">이학관</text>
+
+
+                        <!--그라운드-->
+                        <rect class="grass" x="275" y="165" width="325" height="150" />
+                        <rect class="area" x="385" y="220" width="110" height="60" />
+                        <text x="435" y="255" class="building-label-italic">하나스퀘어</text>
+
+                        <rect class="grass" x="720" y="410" width="230" height="80" />
+
+                        <rect class="grass" x="390" y="635" width="220" height="60" />
+
+
                     </svg>
 
                     <!-- 세종공동캠퍼스 맵 (숨김) -->

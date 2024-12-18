@@ -147,9 +147,34 @@ header h1 {
     cursor: pointer;
     transition: fill 0.3s ease;
 }
+.unusable-building {
+    fill: rgba(224, 224, 224, 0.5);
+    stroke-width: 2;
+    cursor: pointer;
+    transition: fill 0.3s ease;
+}
+
+.area {
+    fill: rgba(224, 224, 224, 0.5);  /* 반투명한 채우기 */
+    stroke: #333;
+    stroke-width: 2;
+    stroke-dasharray: 5,5;  /* 점선 패턴 */
+    rx: 10;  /* 모서리 둥글기 */
+    ry: 10;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 
 .road {
     fill: #7c7a79;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: fill 0.3s ease;
+}
+
+.grass {
+    fill: rgb(152, 218, 147);
     stroke-width: 2;
     cursor: pointer;
     transition: fill 0.3s ease;
@@ -161,8 +186,17 @@ header h1 {
 
 .building-label {
     fill: #000;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.building-label-italic {
+    fill: #000;
+    font-size: 17px;
+    font-weight: bold;
+    font-style: italic;
     text-anchor: middle;
     pointer-events: none;
 }
