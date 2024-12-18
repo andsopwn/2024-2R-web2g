@@ -15,7 +15,7 @@
     <div class="side-menu">
         <button class="close-menu">&times;</button>
         <div class="user-info">
-            <p><span id="currentUser"></span>님 안녕하세요!</p>
+            <p><span id="currentUser"></span>양채연 님 안녕하세요!</p>
         </div>
         <ul>
             <li><a href="my_reservation.html">예약 현황</a></li>
@@ -119,7 +119,6 @@
                         <rect class="unusable-building" x="1080" y="300" width="70" height="120" />
                         <text x="1115" y="350" class="building-label-italic">학술</text>
                         <text x="1115" y="370" class="building-label-italic">회관</text>
-  
                     </svg>
                     
 
@@ -156,7 +155,7 @@
                         
                         <!--상단-->
                         <rect class="building" x="260", y="50", width="200", height="70" onclick="showBuilding(event, '기초과학관')" />
-                        <text x="350" y="90" class="building-label2">기초과학관</text>
+                        <text x="360" y="90" class="building-label2">기초과학관</text>
                         <rect class="building" x="530", y="10", width="250", height="100" onclick="showBuilding(event, '이산이학관')" />
                         <text x="650" y="65" class="building-label2">이산이학관</text>
                         <rect class="building" x="850", y="50", width="200", height="70" onclick="showBuilding(event, '생명과학관(서관)')" />
@@ -220,6 +219,10 @@
                         <rect class="road" x="0", y="430", width="1200", height="50" />
                         <rect class="road" x="650", y="0", width="30", height="600" />
                         <rect class="road" x="0", y="200", width="30", height="600" />
+
+                        <rect class="grass" x="850" y="100" width="230" height="305" />
+                        <rect class="area" x="80" y="60" width="520" height="210" />
+                        <text x="340" y="170" class="building-label-italic">대학혁신도시시범단지</text>
                     </svg>
                 </div>
                 <p>지도에서 건물을 선택하여 예약 가능 여부를 확인하세요.</p>
@@ -287,11 +290,15 @@
         }
 
         function handleSpaceReservation() {
-            alert('공간 예약 페이지로 이동합니다.');
+            if (confirm('공간 예약 페이지로 이동하시겠습니까?')) {
+                window.location.href = 'space_reservation.html';
+            }
         }
 
         function handleSeatReservation() {
-            alert('좌석 예약 페이지로 이동합니다.');
+            if (confirm('좌석 예약 페이지로 이동하시겠습니까?')) {
+                window.location.href = 'seat_reservation.html';
+            }
         }
 
         function switchCampus(campus) {
@@ -318,7 +325,7 @@
             '석원 경상관': './images/buildings/business.jpg',
             '문스대': './images/buildings/sports.jpg',
             '체육관': './images/buildings/gym.jpg',
-            '공공정책관': './images/buildings/public.jpg',
+            '공공정책���': './images/buildings/public.jpg',
 
             //서울캠퍼스
             '기초과학관': './images/buildings/basic.jpg',

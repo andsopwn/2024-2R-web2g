@@ -13,40 +13,62 @@
 
     <div class="reservation-container">
         <div class="content">
-            <div class = "sidebar">
-                
-                    <h2>나의 프로필</h2>
-                <!-- 프로필 섹션 시작 -->
-                    <div class="profileSection">
-                        <!--DB에서 받아올 정보들-->
-                        <section>
-                        <img id="profileImage" src="" alt="프로필 사진">
-                        </section>
-                        <section>
-                        이름 : <h2 id="userName"></h2>
-                        학번 : <p id="userInfo"></p>
-                        </section>
-                    </div>
-                <!-- 프로필 섹션 끝 -->
-            </div>
-            
-
-            <div class="map-container">
                     <section>
-                        <h2>My Reservations</h2>
+                        <br>
+                        <br>
+                        <br>
+                        
                         <!-- 좌석 예약 섹션 -->
-                        <h3>좌석 예약 정보</h3>
-                        <ul id="seatReservationList">
-                            <!-- 좌석 예약 내역이 동적으로 추가될 영역 -->
-                        </ul>
+                        <br>
+                        <h3 class="reservation-section-title">좌석 예약 정보</h3>
+                        <div class="section-divider"></div>
+                        <div class="reservation-card">
+                            <div class="reservation-header">
+                                <h4>학술정보원</h4>
+                            </div>
+                            <div class="reservation-seats">
+                                <div class="seat-item">좌석 101 (2024-12-18 10:00 ~ 12:00)</div>
+                                <div class="seat-item">좌석 102 (2024-12-18 10:00 ~ 12:00)</div>
+                            </div>
+                            <div class="reservation-actions">
+                                <button class="btn-edit" onclick="editReservation('seat', 1)">수정</button>
+                                <button class="btn-cancel" onclick="cancelReservation('seat', 1)">취소</button>
+                            </div>
+                        </div>
+
+
                     
                         <!-- 공간 예약 섹션 -->
-                        <h3>공간 예약 정보</h3>
-                        <ul id="spaceReservationList">
-                            <!-- 공간 예약 내역이 동적으로 추가될 영역 -->
-                        </ul>
+                        <br>
+                        <h3 class="reservation-section-title">공간 예약 정보</h3>
+                        <div class="section-divider"></div>
+                        <div class="reservation-card">
+                            <div class="reservation-header">
+                                <h4>과학기술1관</h4>
+                            </div>
+                            <div class="reservation-seats">
+                                <div class="seat-item">스터디룸 301호 (2024-12-18 13:00 ~ 15:00)</div>
+                                <div class="seat-item">세미나실 A (2024-12-18 13:00 ~ 15:00)</div>
+                            </div>
+                            <div class="reservation-actions">
+                                <button class="btn-edit" onclick="editReservation('space', 1)">수정</button>
+                                <button class="btn-cancel" onclick="cancelReservation('space', 1)">취소</button>
+                            </div>
+                        </div>
+                        <div class="reservation-card">
+                            <div class="reservation-header">
+                                <h4>공학관</h4>
+                            </div>
+                            <div class="reservation-seats">
+                                <div class="seat-item">회의실 201호 (2024-12-19 10:00 ~ 12:00)</div>
+                            </div>
+                            <div class="reservation-actions">
+                                <button class="btn-edit" onclick="editReservation('space', 2)">수정</button>
+                                <button class="btn-cancel" onclick="cancelReservation('space', 2)">취소</button>
+                            </div>
+                        </div>
                     </section>
-            </div>
+            
             
             
             
@@ -58,5 +80,22 @@
             
     </div>
     <script src="script.js"></script>
+    <script>
+    function editReservation(type, id) {
+        if (confirm('예약을 수정하시겠습니까?')) {
+            // 예약 타입(좌석/공간)에 따라 다른 페이지로 이동
+            const page = type === 'seat' ? 'seat_reservation.html' : 'space_reservation.html';
+            window.location.href = `${page}?edit=${id}`;
+        }
+    }
+
+    function cancelReservation(type, id) {
+        if (confirm('정말로 예약을 취소하시겠습니까?')) {
+            // 여기에 예약 취소 로직 구현
+            alert('예약이 취소되었습니다.');
+            location.reload(); // 페이지 새로고침
+        }
+    }
+    </script>
 </body>
 </html>

@@ -291,6 +291,11 @@ header h1 {
     gap: 15px;
 }
 
+.user-info {
+    padding: 0 25px;  /* 좌우 패딩 25px 추가 */
+    margin-bottom: 20px;
+}
+
 /* 추가: footer 스타일 
 footer {
     text-align: center;
